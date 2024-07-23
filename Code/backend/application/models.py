@@ -1,12 +1,6 @@
-from flask_sqlalchemy import SQLAlchemy
+from application import db
+from flask_login import UserMixin
 from datetime import datetime
-
-db = SQLAlchemy()
-
-def configure_database(app):
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///seproject.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db.init_app(app)
 
 class User(db.Model):
     __tablename__ = 'Users'
