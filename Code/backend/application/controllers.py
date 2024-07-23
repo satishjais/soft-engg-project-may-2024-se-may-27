@@ -11,7 +11,7 @@ bcrypt = Bcrypt()
 
 class Home(Resource):
     def post(self):
-        return {"message": "Welcome to the API"}
+        return {"message": "Welcome to the App"}
 
 class Register(Resource):
     def post(self):
