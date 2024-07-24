@@ -8,10 +8,12 @@ from flask_bcrypt import Bcrypt
 import datetime
 
 bcrypt = Bcrypt()
-
+######################################################## HOME API ####################################################################
 class Home(Resource):
     def post(self):
         return {"message": "Welcome to the App"}
+
+##################################################### REGISTRATION API ####################################################################
 
 class Register(Resource):
     def post(self):
@@ -54,6 +56,8 @@ class Register(Resource):
         except Exception as e:
             return jsonify({'error': e , 'code': 500})
 
+##################################################### LOGIN API ####################################################################
+
 class Login(Resource):
     def post(self):
         try:
@@ -71,6 +75,8 @@ class Login(Resource):
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
+
+##################################################### DASHBOARD API ####################################################################
 
 class Dashboard(Resource):
     def get(self, user_id):
@@ -156,6 +162,8 @@ class Dashboard(Resource):
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
+
+##################################################### STUDY API ####################################################################
 
 class Study(Resource):
 
