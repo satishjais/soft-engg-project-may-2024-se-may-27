@@ -4,12 +4,14 @@ from datetime import datetime
 
 class User(db.Model):
     __tablename__ = 'Users'
-    UserID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    Username = db.Column(db.String, nullable=False, unique=True)
-    Password = db.Column(db.String, nullable=False)
-    Email = db.Column(db.String, nullable=False, unique=True)
-    Role = db.Column(db.String, nullable=False, default='User')
-    CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String, nullable=False)
+    username = db.Column(db.String, nullable=False, unique=True)
+    password = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, nullable=False, unique=True)
+    mob = db.Column(db.Integer, nullable=False, unique=True)
+    role = db.Column(db.String, nullable=False, default='User')
+    first_login_time = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Course(db.Model):
     __tablename__ = 'Courses'
@@ -59,7 +61,7 @@ class Document(db.Model):
 class SupportRequest(db.Model):
     __tablename__ = 'SupportRequests'
     RequestID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    UserID = db.Column(db.Integer, db.ForeignKey('Users.UserID'))
+    id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     RequestDetails = db.Column(db.String)
     RequestStatus = db.Column(db.String)
     CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
@@ -67,7 +69,7 @@ class SupportRequest(db.Model):
 class Profile(db.Model):
     __tablename__ = 'Profiles'
     ProfileID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    UserID = db.Column(db.Integer, db.ForeignKey('Users.UserID'))
+    id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     FullName = db.Column(db.String)
     DateOfBirth = db.Column(db.Date)
     Address = db.Column(db.String)
@@ -78,7 +80,7 @@ class Profile(db.Model):
 class Content(db.Model):
     __tablename__ = 'Content'
     ContentID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    AdminID = db.Column(db.Integer, db.ForeignKey('Users.UserID'))
+    AdminID = db.Column(db.Integer, db.ForeignKey('Users.id'))
     Title = db.Column(db.String, nullable=False)
     ContentType = db.Column(db.String)
     ContentPath = db.Column(db.String)
@@ -87,6 +89,6 @@ class Content(db.Model):
 class Admin(db.Model):
     __tablename__ = 'Admins'
     AdminID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    UserID = db.Column(db.Integer, db.ForeignKey('Users.UserID'))
+    id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     AdminRole = db.Column(db.String, nullable=False)
     CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)

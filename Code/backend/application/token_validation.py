@@ -18,8 +18,9 @@ def validate_jwt():
 
     return(user)
 
-def generate_jwt(self, id, role):
-    token=jwt.encode({'id':id, 'role': role, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=100)},app.config['SECRET_KEY'], algorithm="HS256" )
+def generate_jwt(user):
+    user=user['user']
+    token=jwt.encode({'id':user.id, 'role': user.role, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=100)},app.config['SECRET_KEY'], algorithm="HS256" )
 
     return(token)
 

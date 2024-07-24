@@ -8,6 +8,7 @@ app.config['SECRET_KEY'] = '7cc6619eb68e5c5f5d2ee4fc'
 db = SQLAlchemy(app)
 api = Api(app)
 from . import models
+from . import controllers
 
 with app.app_context():
     db.create_all()

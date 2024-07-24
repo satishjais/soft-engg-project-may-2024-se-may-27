@@ -22,11 +22,10 @@ class Register(Resource):
             email = data.get('email')
             mob = data.get('mob')
             name = data.get('name')
-            role = data.get('role')
 
-            if not (username and password and email and mob and name and role):
+            if not (username and password and email and mob and name):
                 return jsonify({'error': 'All fields are required', 'code': 400})
-
+            print('gtg')
             hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
             existing_user = User.query.filter_by(username=username).first()
             if existing_user:
@@ -43,17 +42,17 @@ class Register(Resource):
             db.session.add(new_user)
             db.session.commit()
 
-            if role == 'Admin':
-                user = User.query.filter_by(username=username).first()
-                c_id = user.id
-                creator = Admin(user_id=c_id)
-                db.session.add(creator)
-                db.session.commit()
+            # if role == 'Admin':
+            #     user = User.query.filter_by(username=username).first()
+            #     c_id = user.id
+            #     creator = Admin(user_id=c_id)
+            #     db.session.add(creator)
+            #     db.session.commit()
 
             return jsonify({'message': 'User created successfully', 'code': 201})
 
         except Exception as e:
-            return jsonify({'error': 'Something went wrong', 'code': 500})
+            return jsonify({'error': e , 'code': 500})
 
 class Login(Resource):
     def post(self):
@@ -64,15 +63,17 @@ class Login(Resource):
             user = User.query.filter_by(username=username).first()
             if not user or not bcrypt.check_password_hash(user.password, password):
                 return jsonify({'error': 'Invalid credentials', 'code': 400})
+            user_id=user.id
+            user_role=user.role
 
-            token = generate_jwt({'username': username, 'role': user.role})
+            token = generate_jwt({'user':user})
             return jsonify({'token': token, 'code': 200})
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
 
 class Dashboard(Resource):
-    @validate_jwt
+
     def get(self, user_id):
         try:
             user = User.query.get(user_id)
@@ -158,7 +159,7 @@ class Dashboard(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
 class Study(Resource):
-    @validate_jwt
+    
     def get(self, user_id):
         try:
             user = User.query.get(user_id)
@@ -240,7 +241,7 @@ class Study(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
 class Downloads(Resource):
-    @validate_jwt
+    
     def get(self, user_id):
         try:
             user = User.query.get(user_id)
@@ -266,7 +267,7 @@ class Downloads(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
 class Profile(Resource):
-    @validate_jwt
+    
     def get(self, user_id):
         try:
             user = User.query.get(user_id)
@@ -298,7 +299,7 @@ class Profile(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
 class CourseDocs(Resource):
-    @validate_jwt
+    
     def get(self, course_id):
         try:
             course = Course.query.get(course_id)
@@ -323,7 +324,7 @@ class CourseDocs(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
 class Practice(Resource):
-    @validate_jwt
+    
     def get(self, user_id):
         try:
             # Fetch practice assignments related to the user
@@ -346,7 +347,7 @@ class Practice(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
 class Graded(Resource):
-    @validate_jwt
+    
     def get(self, user_id):
         try:
             # Fetch graded assignments related to the user
@@ -388,7 +389,7 @@ api.add_resource(Profile, "/profile")
 
 
 #Third Priority
-api.add_resource(Content, "/study/content")
+# api.add_resource(Content, "/study/content")
 api.add_resource(CourseDocs, "/study/course_docs")
 api.add_resource(Practice, "/study/practice")
 api.add_resource(Graded, "/study/graded")
