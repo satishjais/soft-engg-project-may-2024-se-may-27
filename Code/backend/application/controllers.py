@@ -38,7 +38,6 @@ class Register(Resource):
                 email=email,
                 mob=mob,
                 name=name,
-                role=role,
                 first_login_time=datetime.datetime.now()
             )
             db.session.add(new_user)
@@ -371,16 +370,24 @@ class Graded(Resource):
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
+
+#First Priority
 api.add_resource(Home, "/")
 api.add_resource(Login, "/login")
 api.add_resource(Register, "/register")
 api.add_resource(Dashboard, "/dashboard")
+
+
+#Second Priority
 api.add_resource(Study, "/study")
 api.add_resource(Downloads, "/downloads")
 # api.add_resource(Forum, "/forum") not needed as am API
 api.add_resource(Profile, "/profile")
 # api.add_resource(Deadlines, "/deadlines")
 # api.add_resource(Announcements, "/announcements")
+
+
+#Third Priority
 api.add_resource(Content, "/study/content")
 api.add_resource(CourseDocs, "/study/course_docs")
 api.add_resource(Practice, "/study/practice")

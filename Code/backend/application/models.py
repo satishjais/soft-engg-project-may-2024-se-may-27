@@ -8,7 +8,7 @@ class User(db.Model):
     Username = db.Column(db.String, nullable=False, unique=True)
     Password = db.Column(db.String, nullable=False)
     Email = db.Column(db.String, nullable=False, unique=True)
-    Role = db.Column(db.String, nullable=False)
+    Role = db.Column(db.String, nullable=False, default='User')
     CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Course(db.Model):
