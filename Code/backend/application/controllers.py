@@ -1,5 +1,5 @@
 import os
-from  import request, jsonify, make_response, send_file
+from flask import request, jsonify, make_response, send_file
 from flask_restful import Resource
 from application.models import User, Admin, Course, Assignment, Announcement, Lecture, Document, SupportRequest, Profile, Content
 from application.token_validation import validate_jwt, generate_jwt
