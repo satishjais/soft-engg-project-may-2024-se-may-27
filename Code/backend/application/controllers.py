@@ -1,5 +1,5 @@
 import os
-from flask import request, jsonify, make_response, send_file
+from  import request, jsonify, make_response, send_file
 from flask_restful import Resource
 from application.models import User, Admin, Course, Assignment, Announcement, Lecture, Document, SupportRequest, Profile, Content
 from application.token_validation import validate_jwt, generate_jwt
@@ -77,91 +77,54 @@ class Login(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
 
 ##################################################### DASHBOARD API ####################################################################
-
 class Dashboard(Resource):
-    def get(self, user_id):
+    def get(self):
         try:
+            user_id=1
+            #to be done: Login through JWT and pass user_id
             user = User.query.get(user_id)
             if not user:
                 return jsonify({'error': 'User not found', 'code': 404})
 
-            # Fetch user's courses
-            courses = Course.query.filter_by(user_id=user_id).all()
-            courses_data = [
-                {
-                    'course_id': course.CourseID,
-                    'course_name': course.CourseName,
-                    'course_description': course.CourseDescription,
-                    'start_date': course.StartDate,
-                    'end_date': course.EndDate,
-                    'created_at': course.CreatedAt
-                }
-                for course in courses
-            ]
-
-            # Fetch user's assignments with deadlines
-            assignments = Assignment.query.filter_by(user_id=user_id).all()
-            deadlines_data = [
-                {
-                    'assignment_id': assignment.AssignmentID,
-                    'course_id': assignment.CourseID,
-                    'title': assignment.Title,
-                    'due_date': assignment.DueDate,
-                }
-                for assignment in assignments
-            ]
-
-            # Fetch user's documents for download
-            documents = Document.query.filter_by(user_id=user_id).all()
-            documents_data = [
-                {
-                    'document_id': document.DocumentID,
-                    'course_id': document.CourseID,
-                    'document_name': document.DocumentName,
-                    'document_path': document.DocumentPath,
-                    'uploaded_at': document.UploadedAt
-                }
-                for document in documents
-            ]
-
             # Fetch user's announcements
-            announcements = Announcement.query.filter_by(user_id=user_id).all()
-            announcements_data = [
-                {
-                    'announcement_id': announcement.AnnouncementID,
-                    'course_id': announcement.CourseID,
-                    'title': announcement.Title,
-                    'content': announcement.Content,
-                    'created_at': announcement.CreatedAt
-                }
-                for announcement in announcements
-            ]
-
+            try:
+                announcements = Announcement.query.filter_by(user_id=user_id).all()
+                announcements_data = [
+                    {
+                        'announcement_id': announcement.AnnouncementID,
+                        'course_id': announcement.CourseID,
+                        'title': announcement.Title,
+                        'content': announcement.Content,
+                        'created_at': announcement.CreatedAt
+                    }
+                    for announcement in announcements
+                ]
+            except:
+                announcements_data = 'nahi hai'
+            try:
+                assignment=Assignment.get_all()
+                deadlines_data = []
+                for a in assignment:
+                    deadlines_data.append({
+                        a.Title: a.DueDate
+                    })
+            except:
+                deadlines_data = 'nahi hai'
             # Compile dashboard data
             dashboard_data = {
                 'user': {
-                    'id': user.UserID,
-                    'username': user.Username,
-                    'email': user.Email,
-                    'name': user.Name,
-                    'role': user.Role,
-                    'first_login_time': user.FirstLoginTime
+                    'id': user.id,
+                    'name': user.name
                 },
-                'study': courses_data,
-                'download': documents_data,
                 'deadlines': deadlines_data,
                 'announcements': announcements_data,
-                'profile': {
-                    'full_name': user.name,
-                    'email': user.email,
-                    'phone': user.mob
-                }
             }
 
             return jsonify({'dashboard': dashboard_data, 'code': 200})
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
+
 
 ##################################################### STUDY API ####################################################################
 
