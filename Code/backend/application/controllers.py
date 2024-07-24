@@ -73,7 +73,6 @@ class Login(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
 
 class Dashboard(Resource):
-
     def get(self, user_id):
         try:
             user = User.query.get(user_id)
@@ -159,7 +158,7 @@ class Dashboard(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
 class Study(Resource):
-    
+
     def get(self, user_id):
         try:
             user = User.query.get(user_id)
@@ -241,7 +240,7 @@ class Study(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
 class Downloads(Resource):
-    
+
     def get(self, user_id):
         try:
             user = User.query.get(user_id)
