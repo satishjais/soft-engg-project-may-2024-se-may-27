@@ -14,7 +14,6 @@ class Home(Resource):
         return {"message": "Welcome to the App"}
 
 ##################################################### REGISTRATION API ####################################################################
-
 class Register(Resource):
     def post(self):
         try:
@@ -57,7 +56,6 @@ class Register(Resource):
             return jsonify({'error': e , 'code': 500})
 
 ##################################################### LOGIN API ####################################################################
-
 class Login(Resource):
     def post(self):
         try:
