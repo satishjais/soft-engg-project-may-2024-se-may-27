@@ -25,6 +25,7 @@ class Register(Resource):
             email = data.get('email')
             mob = data.get('mob')
             name = data.get('name')
+            courses = data.get('courses')
 
             if not (username and password and email and mob and name):
                 return jsonify({'error': 'All fields are required', 'code': 400})
@@ -33,6 +34,8 @@ class Register(Resource):
             existing_user = User.query.filter_by(username=username).first()
             if existing_user:
                 return jsonify({'error': 'This username is already taken', 'code': 400})
+            #courses=Course.query.filter_by(CourseID=courses).first()
+            print(courses)
 
             new_user = User(
                 username=username,
@@ -40,6 +43,7 @@ class Register(Resource):
                 email=email,
                 mob=mob,
                 name=name,
+                courses=courses,
                 first_login_time=datetime.utcnow()
             )
             db.session.add(new_user)
@@ -55,7 +59,7 @@ class Register(Resource):
             return jsonify({'message': 'User created successfully', 'code': 201})
 
         except Exception as e:
-            return jsonify({'error': e , 'code': 500})
+            return jsonify({'error': 'e' , 'code': 500})
 
 
 ##################################################### LOGIN API ####################################################################
@@ -233,7 +237,7 @@ class Study(Resource): #user_id to be passed later
             course_description = data.get('course_description')
             start_date = data.get('start_date')
             end_date = data.get('end_date')
-            
+
             start_date = datetime.strptime(start_date, '%Y-%m-%d')
             end_date = datetime.strptime(end_date, '%Y-%m-%d')
 

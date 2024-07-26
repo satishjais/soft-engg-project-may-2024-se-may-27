@@ -75,10 +75,3 @@ class Content(db.Model):
     ContentType = db.Column(db.String)
     ContentPath = db.Column(db.String)
     UploadedAt = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Admin(db.Model):
-    __tablename__ = 'Admins'
-    AdminID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    AdminRole = db.Column(db.String, nullable=False)
-    CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
