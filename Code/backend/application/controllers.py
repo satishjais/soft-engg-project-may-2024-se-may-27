@@ -127,76 +127,91 @@ class Dashboard(Resource):
 ##################################################### STUDY API ####################################################################
 
 class Study(Resource):
-
-    def get(self, user_id):
+    def get(self):
         try:
+            user_id =1
+            #to be done: Login through JWT and pass user_id
             user = User.query.get(user_id)
             if not user:
                 return jsonify({'error': 'User not found', 'code': 404})
 
             # Fetch user's courses and calculate progress
-            courses = Course.query.filter_by(user_id=user_id).all()
-            total_courses = len(courses)
-            completed_courses = sum(1 for course in courses if course.end_date and course.end_date < datetime.datetime.now())
-            course_progress = (completed_courses / total_courses) * 100 if total_courses > 0 else 0
+            try :
+                courses = Course.query.filter_by(user_id=user_id).all()
+                total_courses = len(courses)
+                completed_courses = sum(1 for course in courses if course.end_date and course.end_date < datetime.datetime.now())
+                course_progress = (completed_courses / total_courses) * 100 if total_courses > 0 else 0
 
-            # Fetch course content
-            course_content = [
-                {
-                    'course_id': course.CourseID,
-                    'course_name': course.CourseName,
-                    'course_description': course.CourseDescription,
-                    'course_content': course.Content
-                }
-                for course in courses
-            ]
+                # Fetch course content
+                course_content = [
+                    {
+                        'course_id': course.CourseID,
+                        'course_name': course.CourseName,
+                        'course_description': course.CourseDescription,
+                        'course_content': course.Content
+                    }
+                    for course in courses
+                ]
+            except :
+                course_content ="upload karenge"
+                print(course_content)
 
             # Fetch course documents
-            course_documents = Document.query.filter(Document.CourseID.in_([course.CourseID for course in courses])).all()
-            documents_data = [
-                {
-                    'document_id': document.DocumentID,
-                    'course_id': document.CourseID,
-                    'document_name': document.DocumentName,
-                    'document_path': document.DocumentPath,
-                    'uploaded_at': document.UploadedAt
-                }
-                for document in course_documents
-            ]
+            try :
+                course_documents = Document.query.filter(Document.CourseID.in_([course.CourseID for course in courses])).all()
+                documents_data = [
+                    {
+                        'document_id': document.DocumentID,
+                        'course_id': document.CourseID,
+                        'document_name': document.DocumentName,
+                        'document_path': document.DocumentPath,
+                        'uploaded_at': document.UploadedAt
+                    }
+                    for document in course_documents
+                ]
+            except :
+                documents_data ="doc upload karenge"
+                print(documents_data)
 
             # Fetch graded assignments
-            graded_assignments = Assignment.query.filter_by(user_id=user_id, status='graded').all()
-            graded_assignments_data = [
-                {
-                    'assignment_id': assignment.AssignmentID,
-                    'course_id': assignment.CourseID,
-                    'title': assignment.Title,
-                    'description': assignment.Description,
-                    'due_date': assignment.DueDate,
-                    'score': assignment.Score,
-                    'max_score': assignment.MaxScore,
-                    'created_at': assignment.CreatedAt
-                }
-                for assignment in graded_assignments
-            ]
-
+            try :
+                graded_assignments = Assignment.query.filter_by(user_id=user_id, status='graded').all()
+                graded_assignments_data = [
+                    {
+                        'assignment_id': assignment.AssignmentID,
+                        'course_id': assignment.CourseID,
+                        'title': assignment.Title,
+                        'description': assignment.Description,
+                        'due_date': assignment.DueDate,
+                        'score': assignment.Score,
+                        'max_score': assignment.MaxScore,
+                        'created_at': assignment.CreatedAt
+                    }
+                    for assignment in graded_assignments
+                ]
+            except :
+                graded_assignments_data ="graded upload karenge"
+                print(graded_assignments_data)
             # Fetch practice assignments
-            practice_assignments = Assignment.query.filter_by(user_id=user_id, status='practice').all()
-            practice_assignments_data = [
-                {
-                    'assignment_id': assignment.AssignmentID,
-                    'course_id': assignment.CourseID,
-                    'title': assignment.Title,
-                    'description': assignment.Description,
-                    'due_date': assignment.DueDate,
-                    'created_at': assignment.CreatedAt
-                }
-                for assignment in practice_assignments
-            ]
-
+            try :
+                practice_assignments = Assignment.query.filter_by(user_id=user_id, status='practice').all()
+                practice_assignments_data = [
+                    {
+                        'assignment_id': assignment.AssignmentID,
+                        'course_id': assignment.CourseID,
+                        'title': assignment.Title,
+                        'description': assignment.Description,
+                        'due_date': assignment.DueDate,
+                        'created_at': assignment.CreatedAt
+                    }
+                    for assignment in practice_assignments
+                ]
+            except :
+                practice_assignments_data ="practice upload karenge"
+                print(practice_assignments_data)
             # Compile study data
             study_data = {
-                'course_progress': course_progress,
+                # 'course_progress': course_progress, {{{{formula based, will be modified later}}}}
                 'course_content': course_content,
                 'course_documents': documents_data,
                 'graded_assignments': graded_assignments_data,
@@ -207,6 +222,9 @@ class Study(Resource):
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
+        
+##################################################### DOWNLOADS API ####################################################################
+
 
 class Downloads(Resource):
 
