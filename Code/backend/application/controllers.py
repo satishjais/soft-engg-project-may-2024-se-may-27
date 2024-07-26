@@ -1,17 +1,19 @@
 import os
 from flask import request, jsonify, make_response, send_file
 from flask_restful import Resource
-from application.models import User, Admin, Course, Assignment, Announcement, Lecture, Document, SupportRequest, Content
+from application.models import User, Course, Assignment, Announcement, Lecture, Document, SupportRequest, Content
 from application.token_validation import validate_jwt, generate_jwt
 from application import db, api, app
 from flask_bcrypt import Bcrypt
 import datetime
+from datetime import datetime
 
 bcrypt = Bcrypt()
 ######################################################## HOME API ####################################################################
 class Home(Resource):
     def post(self):
         return {"message": "Welcome to the App"}
+
 
 ##################################################### REGISTRATION API ####################################################################
 class Register(Resource):
@@ -38,7 +40,7 @@ class Register(Resource):
                 email=email,
                 mob=mob,
                 name=name,
-                first_login_time=datetime.datetime.now()
+                first_login_time=datetime.utcnow()
             )
             db.session.add(new_user)
             db.session.commit()
@@ -54,6 +56,7 @@ class Register(Resource):
 
         except Exception as e:
             return jsonify({'error': e , 'code': 500})
+
 
 ##################################################### LOGIN API ####################################################################
 class Login(Resource):
@@ -73,6 +76,7 @@ class Login(Resource):
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
+
 
 ##################################################### DASHBOARD API ####################################################################
 class Dashboard(Resource):
@@ -125,7 +129,6 @@ class Dashboard(Resource):
 
 
 ##################################################### STUDY API ####################################################################
-
 class Study(Resource): #user_id to be passed later
     def get(self):
         try:
@@ -222,10 +225,36 @@ class Study(Resource): #user_id to be passed later
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
-        
+
+    def post(self):
+        try:
+            data = request.get_json()
+            course_name = data.get('course_name')
+            course_description = data.get('course_description')
+            start_date = data.get('start_date')
+            end_date = data.get('end_date')
+            
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+            new_course = Course(
+                CourseName=course_name,
+                CourseDescription=course_description,
+                StartDate=start_date,
+                EndDate=end_date,
+                CreatedAt=datetime.utcnow()
+            )
+            db.session.add(new_course)
+            db.session.commit()
+
+            return jsonify({'message': 'Course created successfully', 'code': 201})
+
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of error
+            return jsonify({'error': str(e), 'code': 500})
+
+
 ##################################################### DOWNLOADS API ####################################################################
-
-
 class Downloads(Resource):
 
     def get(self): #user_id to be passed later
@@ -258,8 +287,8 @@ class Downloads(Resource):
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
-##################################################### PROFILE API ####################################################################
 
+##################################################### PROFILE API ####################################################################
 class Profile(Resource):
     
     def get(self): #user_id to be passed later
@@ -291,10 +320,13 @@ class Profile(Resource):
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
+
+##################################################### COURSEDOCS API ####################################################################
 class CourseDocs(Resource):
-    
+
     def get(self, course_id):
         try:
+            course_id =1
             course = Course.query.get(course_id)
             if not course:
                 return jsonify({'error': 'Course not found', 'code': 404})
@@ -363,6 +395,7 @@ class Graded(Resource):
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
+
 
 
 #First Priority
