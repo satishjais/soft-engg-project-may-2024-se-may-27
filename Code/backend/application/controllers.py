@@ -144,9 +144,9 @@ class Study(Resource): #user_id to be passed later
 
             # Fetch user's courses and calculate progress
             try :
-                courses = Course.query.filter_by(user_id=user_id).all()
-                total_courses = len(courses)
-                completed_courses = sum(1 for course in courses if course.end_date and course.end_date < datetime.datetime.now())
+                course = Course.query.filter_by(CourseID=user.courses).first()
+                total_courses = len(course)
+                completed_courses = sum(1 for course in course if course.end_date and course.end_date < datetime.datetime.now())
                 course_progress = (completed_courses / total_courses) * 100 if total_courses > 0 else 0
 
                 # Fetch course content
@@ -157,7 +157,6 @@ class Study(Resource): #user_id to be passed later
                         'course_description': course.CourseDescription,
                         'course_content': course.Content
                     }
-                    for course in courses
                 ]
             except :
                 course_content ="upload karenge"
