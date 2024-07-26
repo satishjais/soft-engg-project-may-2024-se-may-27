@@ -190,6 +190,63 @@ class Study(Resource): #user_id to be passed later
             return jsonify({'error': str(e), 'code': 500})
 
 
+##################################################### STUDY API ####################################################################
+class Lectures(Resource): #user_id to be passed later
+    def get(self):
+        try:
+            user_id =1
+            #to be done: Login through JWT and pass user_id
+            user = User.query.get(user_id)
+            if not user:
+                return jsonify({'error': 'User not found', 'code': 404})
+
+            # Fetch user's courses and calculate progress
+            try :
+                courses = Course.query.filter_by(CourseID=user.courses).first()
+                # Fetch course content
+                course_content = [
+                    {
+                        'course_id': courses.CourseID,
+                        'course_name': courses.CourseName,
+                        'course_description': courses.CourseDescription
+                    }
+                ]
+            except :
+                course_content ="upload karenge"
+                print(course_content)
+
+            return jsonify({'study': course_content, 'code': 200})
+
+        except Exception as e:
+            return jsonify({'error': 'Something went wrong', 'code': 500})
+
+    def post(self):
+        try:
+            data = request.get_json()
+            course_name = data.get('course_name')
+            course_description = data.get('course_description')
+            start_date = data.get('start_date')
+            end_date = data.get('end_date')
+
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+            new_course = Course(
+                CourseName=course_name,
+                CourseDescription=course_description,
+                StartDate=start_date,
+                EndDate=end_date,
+                CreatedAt=datetime.utcnow()
+            )
+            db.session.add(new_course)
+            db.session.commit()
+
+            return jsonify({'message': 'Course created successfully', 'code': 201})
+
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of error
+            return jsonify({'error': str(e), 'code': 500})
+
 ##################################################### DOWNLOADS API ####################################################################
 class Downloads(Resource):
 
@@ -355,6 +412,7 @@ api.add_resource(Profile, "/profile")
 api.add_resource(CourseDocs, "/study/course_docs")
 api.add_resource(Practice, "/study/practice")
 api.add_resource(Graded, "/study/graded")
+api.add_resource(Lectures, "/study/lectures")
 # api.add_resource(Scores, "/scores")
 # api.add_resource(Payments, "/profile/payments")
 # api.add_resource(ATS, "/profile/ats")
