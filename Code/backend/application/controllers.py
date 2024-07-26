@@ -258,20 +258,23 @@ class Downloads(Resource):
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
+##################################################### PROFILE API ####################################################################
+
 class Profile(Resource):
     
-    def get(self, user_id):
+    def get(self): #user_id to be passed later
         try:
+            user_id = 2
             user = User.query.get(user_id)
             if not user:
                 return jsonify({'error': 'User not found', 'code': 404})
 
-            profile = Profile.query.filter_by(user_id=user_id).first()
+            profile = Profile.query.filter_by(user_id=user.id).first()
             if not profile:
                 return jsonify({'error': 'Profile not found', 'code': 404})
 
             # Fetch user's courses
-            courses = Course.query.filter_by(user_id=user_id).all()
+            courses = Course.query.filter_by(user_id=user.id).all()
             subjects_taken = [course.CourseName for course in courses]
 
             # Compile profile data
@@ -279,10 +282,8 @@ class Profile(Resource):
                 'first_name': user.name.split()[0],
                 'last_name': user.name.split()[-1] if len(user.name.split()) > 1 else '',
                 'email': user.email,
-                'phone_number': user.mob,
-                'address': profile.Address,
+                'mob': user.mob,
                 'subjects_taken': subjects_taken,
-                'social_profiles': profile.SocialProfileLinks
             }
 
             return jsonify({'profile': profile_data, 'code': 200})
