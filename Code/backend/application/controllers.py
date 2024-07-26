@@ -126,7 +126,7 @@ class Dashboard(Resource):
 
 ##################################################### STUDY API ####################################################################
 
-class Study(Resource):
+class Study(Resource): #user_id to be passed later
     def get(self):
         try:
             user_id =1
@@ -228,24 +228,30 @@ class Study(Resource):
 
 class Downloads(Resource):
 
-    def get(self, user_id):
+    def get(self): #user_id to be passed later
         try:
+            user_id =1
+            #to be done: Login through JWT and pass user_id
             user = User.query.get(user_id)
             if not user:
                 return jsonify({'error': 'User not found', 'code': 404})
 
             # Fetch all documents related to the user's courses
-            documents = Document.query.join(Course, Document.CourseID == Course.CourseID).filter(Course.user_id == user_id).all()
-            documents_data = [
-                {
-                    'document_id': document.DocumentID,
-                    'course_id': document.CourseID,
-                    'document_name': document.DocumentName,
-                    'document_path': document.DocumentPath,
-                    'uploaded_at': document.UploadedAt
-                }
-                for document in documents
-            ]
+            try :
+                documents = Document.query.join(Course, Document.CourseID == Course.CourseID).filter(Course.user_id == user_id).all()
+                documents_data = [
+                    {
+                        'document_id': document.DocumentID,
+                        'course_id': document.CourseID,
+                        'document_name': document.DocumentName,
+                        'document_path': document.DocumentPath,
+                        'uploaded_at': document.UploadedAt
+                    }
+                    for document in documents
+                ]
+            except :
+                documents_data = "doc data to be added"
+
 
             return jsonify({'downloads': documents_data, 'code': 200})
 
