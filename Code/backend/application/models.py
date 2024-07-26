@@ -12,6 +12,7 @@ class User(db.Model):
     mob = db.Column(db.Integer, nullable=False, unique=True)
     role = db.Column(db.String, nullable=False, default='User')
     first_login_time = db.Column(db.DateTime, default=datetime.utcnow)
+    courses =  db.Column(db.Integer, db.ForeignKey('Courses.CourseID'))
 
 class Course(db.Model):
     __tablename__ = 'Courses'
@@ -92,9 +93,3 @@ class Admin(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     AdminRole = db.Column(db.String, nullable=False)
     CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
-
-class CourseUser(db.Model):
-    __tablename__ = 'CourseUser'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    course = db.Column(db.Integer, db.ForeignKey('Courses.CourseID'))
-    user = db.Column(db.Integer, db.ForeignKey('Users.id'))

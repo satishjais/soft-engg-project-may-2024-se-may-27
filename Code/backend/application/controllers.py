@@ -274,7 +274,7 @@ class Profile(Resource):
                 return jsonify({'error': 'Profile not found', 'code': 404})
 
             # Fetch user's courses
-            courses = Course.query.filter_by(user_id=user.id).all()
+            courses = Course.query.filter_by(id=user.course).all()
             subjects_taken = [course.CourseName for course in courses]
 
             # Compile profile data
