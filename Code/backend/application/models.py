@@ -67,17 +67,6 @@ class SupportRequest(db.Model):
     RequestStatus = db.Column(db.String)
     CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
 
-class Profile(db.Model):
-    __tablename__ = 'Profiles'
-    ProfileID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    FullName = db.Column(db.String)
-    DateOfBirth = db.Column(db.Date)
-    Address = db.Column(db.String)
-    PhoneNumber = db.Column(db.String)
-    SocialProfileLinks = db.Column(db.String)
-    CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
-
 class Content(db.Model):
     __tablename__ = 'Content'
     ContentID = db.Column(db.Integer, primary_key=True, autoincrement=True)

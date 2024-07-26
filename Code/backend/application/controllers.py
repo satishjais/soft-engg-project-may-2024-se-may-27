@@ -1,7 +1,7 @@
 import os
 from flask import request, jsonify, make_response, send_file
 from flask_restful import Resource
-from application.models import User, Admin, Course, Assignment, Announcement, Lecture, Document, SupportRequest, Profile, Content
+from application.models import User, Admin, Course, Assignment, Announcement, Lecture, Document, SupportRequest, Content
 from application.token_validation import validate_jwt, generate_jwt
 from application import db, api, app
 from flask_bcrypt import Bcrypt
@@ -264,19 +264,19 @@ class Profile(Resource):
     
     def get(self): #user_id to be passed later
         try:
-            user_id = 2
+            user_id = 1
             user = User.query.get(user_id)
             if not user:
                 return jsonify({'error': 'User not found', 'code': 404})
-
-            profile = Profile.query.filter_by(user_id=user.id).first()
-            if not profile:
-                return jsonify({'error': 'Profile not found', 'code': 404})
-
+            
+            
             # Fetch user's courses
-            courses = Course.query.filter_by(id=user.course).all()
-            subjects_taken = [course.CourseName for course in courses]
-
+            try:
+                courses = Course.query.filter_by(id=user.course).all()
+                subjects_taken = [course.CourseName for course in courses]
+            except:
+                subjects_taken = 'Course nahi hai'
+            
             # Compile profile data
             profile_data = {
                 'first_name': user.name.split()[0],
