@@ -1,7 +1,7 @@
 import os
 from flask import request, jsonify, make_response, send_file
 from flask_restful import Resource
-from application.models import User, Course, Assignment, Announcement, Lecture, Document, SupportRequest, Content
+from application.models import User, Course, Assignment, Announcement, Lecture, CourseDocs
 from application.token_validation import validate_jwt, generate_jwt
 from application import db, api, app
 from flask_bcrypt import Bcrypt
@@ -224,7 +224,7 @@ class Lectures(Resource): #user_id to be passed later
             lecture_link = data.get('lecture_link')
             lecture_date = data.get('lecture_date')
             lecture_description = data.get('lecture_description')
-            
+
             lecture_date = datetime.strptime(lecture_date, '%Y-%m-%d')
             new_lecture = Lecture(
                 CourseID=1,
@@ -242,39 +242,6 @@ class Lectures(Resource): #user_id to be passed later
         except Exception as e:
             db.session.rollback()  # Rollback in case of error
             return jsonify({'error': str(e), 'code': 500})
-
-##################################################### DOWNLOADS API ####################################################################
-class Downloads(Resource):
-
-    def get(self): #user_id to be passed later
-        try:
-            user_id =1
-            #to be done: Login through JWT and pass user_id
-            user = User.query.get(user_id)
-            if not user:
-                return jsonify({'error': 'User not found', 'code': 404})
-
-            # Fetch all documents related to the user's courses
-            try :
-                documents = Document.query.join(Course, Document.CourseID == Course.CourseID).filter(Course.user_id == user_id).all()
-                documents_data = [
-                    {
-                        'document_id': document.DocumentID,
-                        'course_id': document.CourseID,
-                        'document_name': document.DocumentName,
-                        'document_path': document.DocumentPath,
-                        'uploaded_at': document.UploadedAt
-                    }
-                    for document in documents
-                ]
-            except :
-                documents_data = "doc data to be added"
-
-
-            return jsonify({'downloads': documents_data, 'code': 200})
-
-        except Exception as e:
-            return jsonify({'error': 'Something went wrong', 'code': 500})
 
 
 ##################################################### PROFILE API ####################################################################
@@ -309,32 +276,83 @@ class Profile(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
 
-##################################################### COURSEDOCS API ####################################################################
-class CourseDocs(Resource):
 
-    def get(self, course_id):
+
+    def get(self): #user_id to be passed later
+        try:
+            user_id =1
+            #to be done: Login through JWT and pass user_id
+            user = User.query.get(user_id)
+            if not user:
+                return jsonify({'error': 'User not found', 'code': 404})
+
+            # Fetch all documents related to the user's courses
+            try :
+                documents = Document.query.join(Course, Document.CourseID == Course.CourseID).filter(Course.user_id == user_id).all()
+                documents_data = [
+                    {
+                        'document_id': document.DocumentID,
+                        'course_id': document.CourseID,
+                        'document_name': document.DocumentName,
+                        'document_path': document.DocumentPath,
+                        'uploaded_at': document.UploadedAt
+                    }
+                    for document in documents
+                ]
+            except :
+                documents_data = "doc data to be added"
+
+
+            return jsonify({'downloads': documents_data, 'code': 200})
+
+        except Exception as e:
+            return jsonify({'error': 'Something went wrong', 'code': 500})
+
+
+##################################################### COURSEDOCS API ####################################################################
+class CourseDocuments(Resource):
+
+    def get(self):
         try:
             course_id =1
             course = Course.query.get(course_id)
             if not course:
                 return jsonify({'error': 'Course not found', 'code': 404})
 
-            # Fetch documents related to the course
-            documents = Document.query.filter_by(CourseID=course_id).all()
-            documents_data = [
-                {
-                    'document_id': document.DocumentID,
-                    'document_name': document.DocumentName,
-                    'document_path': document.DocumentPath,
-                    'uploaded_at': document.UploadedAt
-                }
-                for document in documents
-            ]
+            documents = CourseDocs.query.filter_by(CourseID=course_id).all()
+            for document in documents:
+                documents_data = [
+                    {
+                        'document_name': document.DocName,
+                        'document_link': document.DocLink,
+                    }
+                ]
 
             return jsonify({'course_docs': documents_data, 'code': 200})
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
+
+    def post(self):
+        try:
+            data = request.get_json()
+            doc_title = data.get('doc_title')
+            doc_link = data.get('doc_link')
+
+            new_doc = CourseDocs(
+                CourseID=1,
+                DocName=doc_title,
+                DocLink=doc_link
+            )
+            db.session.add(new_doc)
+            db.session.commit()
+
+            return jsonify({'message': 'Document created successfully', 'code': 201})
+
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of error
+            return jsonify({'error': str(e), 'code': 500})
+
 
 class Practice(Resource):
     
@@ -358,6 +376,7 @@ class Practice(Resource):
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
+
 
 class Graded(Resource):
     
@@ -385,6 +404,7 @@ class Graded(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
 
+#class Downloads(Resource):
 
 #First Priority
 api.add_resource(Home, "/")
@@ -395,7 +415,7 @@ api.add_resource(Dashboard, "/dashboard")
 
 #Second Priority
 api.add_resource(Study, "/study")
-api.add_resource(Downloads, "/downloads")
+# api.add_resource(Downloads, "/downloads")
 # api.add_resource(Forum, "/forum") not needed as am API
 api.add_resource(Profile, "/profile")
 # api.add_resource(Deadlines, "/deadlines")
@@ -404,7 +424,7 @@ api.add_resource(Profile, "/profile")
 
 #Third Priority
 # api.add_resource(Content, "/study/content")
-api.add_resource(CourseDocs, "/study/course_docs")
+api.add_resource(CourseDocuments, "/study/course_docs")
 api.add_resource(Practice, "/study/practice")
 api.add_resource(Graded, "/study/graded")
 api.add_resource(Lectures, "/study/lectures")
