@@ -38,8 +38,8 @@ class Lecture(db.Model):
     LectureID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     CourseID = db.Column(db.Integer, db.ForeignKey('Courses.CourseID'))
     LectureTitle = db.Column(db.String, nullable=False)
+    LectureLink = db.Column(db.String, nullable=False)
     LectureDate = db.Column(db.Date)
-    LectureTime = db.Column(db.Time)
     Description = db.Column(db.String)
     CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
 

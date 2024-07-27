@@ -190,58 +190,54 @@ class Study(Resource): #user_id to be passed later
             return jsonify({'error': str(e), 'code': 500})
 
 
-##################################################### STUDY API ####################################################################
+##################################################### LECTURES API ####################################################################
 class Lectures(Resource): #user_id to be passed later
     def get(self):
         try:
-            user_id =1
+            course_id =1
             #to be done: Login through JWT and pass user_id
-            user = User.query.get(user_id)
-            if not user:
-                return jsonify({'error': 'User not found', 'code': 404})
-
+            course = Course.query.get(course_id)
+            if not course:
+                return jsonify({'error': 'Course not found', 'code': 404})
             # Fetch user's courses and calculate progress
             try :
-                courses = Course.query.filter_by(CourseID=user.courses).first()
-                # Fetch course content
-                course_content = [
-                    {
-                        'course_id': courses.CourseID,
-                        'course_name': courses.CourseName,
-                        'course_description': courses.CourseDescription
-                    }
-                ]
+                lectures = Lecture.query.filter_by(CourseID=course.CourseID).all()
+                lectures_data=[]
+                for l in lectures:
+                    lectures_data.append({
+                        'lecture_id': l.LectureID,
+                        'lecture_title': l.LectureTitle,
+                        'lecture_link': l.LectureLink,
+                        'lecture_date': l.LectureDate,
+                        'description': l.Description
+                    })
             except :
-                course_content ="upload karenge"
-                print(course_content)
-
-            return jsonify({'study': course_content, 'code': 200})
-
+                lectures_data ="upload karenge"
+            return jsonify({'lectures': lectures_data, 'code': 200})
         except Exception as e:
-            return jsonify({'error': 'Something went wrong', 'code': 500})
+            return jsonify({'error': 'ruk', 'code': 500})
 
     def post(self):
         try:
             data = request.get_json()
-            course_name = data.get('course_name')
-            course_description = data.get('course_description')
-            start_date = data.get('start_date')
-            end_date = data.get('end_date')
-
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
-
-            new_course = Course(
-                CourseName=course_name,
-                CourseDescription=course_description,
-                StartDate=start_date,
-                EndDate=end_date,
+            lecture_title = data.get('lecture_title')
+            lecture_link = data.get('lecture_link')
+            lecture_date = data.get('lecture_date')
+            lecture_description = data.get('lecture_description')
+            
+            lecture_date = datetime.strptime(lecture_date, '%Y-%m-%d')
+            new_lecture = Lecture(
+                CourseID=1,
+                LectureTitle=lecture_title,
+                LectureLink=lecture_link,
+                LectureDate=lecture_date,
+                Description=lecture_description,
                 CreatedAt=datetime.utcnow()
             )
-            db.session.add(new_course)
+            db.session.add(new_lecture)
             db.session.commit()
 
-            return jsonify({'message': 'Course created successfully', 'code': 201})
+            return jsonify({'message': 'Lecture created successfully', 'code': 201})
 
         except Exception as e:
             db.session.rollback()  # Rollback in case of error
@@ -283,7 +279,6 @@ class Downloads(Resource):
 
 ##################################################### PROFILE API ####################################################################
 class Profile(Resource):
-    
     def get(self): #user_id to be passed later
         try:
             user_id = 1
