@@ -6,6 +6,7 @@ from application.token_validation import validate_jwt, generate_jwt
 from application import db, api, app
 from flask_bcrypt import Bcrypt
 import datetime
+import subprocess
 from datetime import datetime
 
 bcrypt = Bcrypt()
@@ -403,6 +404,25 @@ class Graded(Resource):
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
+class ExecuteCode(Resource):
+    def post(self):
+        try:
+            data = request.get_json()
+            code = data.get('code')
+            print(code)
+            # Save the code to a temporary file
+            with open("temp_code.py", "w") as f:
+                f.write(code)
+            
+            # Execute the code and capture the output
+            result = subprocess.run(['python', 'temp_code.py'], capture_output=True, text=True)
+            output = result.stdout + result.stderr
+            # print(result)
+            return jsonify({'output': output, 'code': 200})
+        except Exception as e:
+            return jsonify({'error': str(e), 'code': 500})
+
+
 
 #class Downloads(Resource):
 
@@ -411,7 +431,7 @@ api.add_resource(Home, "/")
 api.add_resource(Login, "/login")
 api.add_resource(Register, "/register")
 api.add_resource(Dashboard, "/dashboard")
-
+api.add_resource(ExecuteCode, "/execute")
 
 #Second Priority
 api.add_resource(Study, "/study")
