@@ -1,0 +1,109 @@
+/genai/videochat:
+    post:
+      summary: Chat with the GenAI assistant about video content and explain concepts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_input:
+                  type: string
+                content_type:
+                  type: string
+                  enum: [video, concept]
+                difficulty_level:
+                  type: string
+                  enum: [beginner, intermediate, advanced]
+      responses:
+        '200':
+          description: Successful response from GenAI
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  answer:
+                    type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /genai/programming_feedback:
+    post:
+      summary: Get AI-generated feedback for programming tests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                language:
+                  type: string
+                test_results:
+                  type: object
+      responses:
+        '200':
+          description: AI-generated feedback
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  feedback:
+                    type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /genai/generate_study_plan:
+    post:
+      summary: Generate a personalized study plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                course_id:
+                  type: string
+                user_id:
+                  type: string
+                duration_weeks:
+                  type: integer
+      responses:
+        '200':
+          description: Generated study plan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  study_plan:
+                    type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string

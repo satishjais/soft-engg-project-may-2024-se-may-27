@@ -1,4 +1,5 @@
 import LoginPage from "./components/LoginPage.vue";
+import VideoChat from "./components/ListandTuple.vue";
 // import RegistrationPage from "./components/RegistrationPage.vue";
 // import DashboardPage from "./components/DashboardPage.vue";
 import {
@@ -17,6 +18,11 @@ const routes=[
     //     component:RegistrationPage,
     //     path:'/register'
     // },
+    {
+        name:'VideoChat',
+        component:VideoChat,
+        path:'/listandtuple'
+    },
     // {
     //     name:'DashboardPage',
     //     component:DashboardPage,
