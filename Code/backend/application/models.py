@@ -38,8 +38,8 @@ class Lecture(db.Model):
     LectureID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     CourseID = db.Column(db.Integer, db.ForeignKey('Courses.CourseID'))
     LectureTitle = db.Column(db.String, nullable=False)
+    LectureLink = db.Column(db.String, nullable=False)
     LectureDate = db.Column(db.Date)
-    LectureTime = db.Column(db.Time)
     Description = db.Column(db.String)
     CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -51,13 +51,12 @@ class Announcement(db.Model):
     Content = db.Column(db.String)
     CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
 
-class Document(db.Model):
+class CourseDocs(db.Model):
     __tablename__ = 'Documents'
-    DocumentID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    DocID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     CourseID = db.Column(db.Integer, db.ForeignKey('Courses.CourseID'))
-    DocumentName = db.Column(db.String, nullable=False)
-    DocumentPath = db.Column(db.String, nullable=False)
-    UploadedAt = db.Column(db.DateTime, default=datetime.utcnow)
+    DocName = db.Column(db.String, nullable=False)
+    DocLink = db.Column(db.String, nullable=False)
 
 class SupportRequest(db.Model):
     __tablename__ = 'SupportRequests'
@@ -65,20 +64,4 @@ class SupportRequest(db.Model):
     id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     RequestDetails = db.Column(db.String)
     RequestStatus = db.Column(db.String)
-    CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Content(db.Model):
-    __tablename__ = 'Content'
-    ContentID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    AdminID = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    Title = db.Column(db.String, nullable=False)
-    ContentType = db.Column(db.String)
-    ContentPath = db.Column(db.String)
-    UploadedAt = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Admin(db.Model):
-    __tablename__ = 'Admins'
-    AdminID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    AdminRole = db.Column(db.String, nullable=False)
     CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)

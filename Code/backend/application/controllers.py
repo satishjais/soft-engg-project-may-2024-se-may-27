@@ -1,17 +1,20 @@
 import os
 from flask import request, jsonify, make_response, send_file
 from flask_restful import Resource
-from application.models import User, Admin, Course, Assignment, Announcement, Lecture, Document, SupportRequest, Content
+from application.models import User, Course, Assignment, Announcement, Lecture, CourseDocs
 from application.token_validation import validate_jwt, generate_jwt
 from application import db, api, app
 from flask_bcrypt import Bcrypt
 import datetime
+import subprocess
+from datetime import datetime
 
 bcrypt = Bcrypt()
 ######################################################## HOME API ####################################################################
 class Home(Resource):
     def post(self):
         return {"message": "Welcome to the App"}
+
 
 ##################################################### REGISTRATION API ####################################################################
 class Register(Resource):
@@ -23,6 +26,7 @@ class Register(Resource):
             email = data.get('email')
             mob = data.get('mob')
             name = data.get('name')
+            courses = data.get('courses')
 
             if not (username and password and email and mob and name):
                 return jsonify({'error': 'All fields are required', 'code': 400})
@@ -31,6 +35,8 @@ class Register(Resource):
             existing_user = User.query.filter_by(username=username).first()
             if existing_user:
                 return jsonify({'error': 'This username is already taken', 'code': 400})
+            #courses=Course.query.filter_by(CourseID=courses).first()
+            print(courses)
 
             new_user = User(
                 username=username,
@@ -38,7 +44,8 @@ class Register(Resource):
                 email=email,
                 mob=mob,
                 name=name,
-                first_login_time=datetime.datetime.now()
+                courses=courses,
+                first_login_time=datetime.utcnow()
             )
             db.session.add(new_user)
             db.session.commit()
@@ -53,7 +60,8 @@ class Register(Resource):
             return jsonify({'message': 'User created successfully', 'code': 201})
 
         except Exception as e:
-            return jsonify({'error': e , 'code': 500})
+            return jsonify({'error': 'e' , 'code': 500})
+
 
 ##################################################### LOGIN API ####################################################################
 class Login(Resource):
@@ -73,6 +81,7 @@ class Login(Resource):
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
+
 
 ##################################################### DASHBOARD API ####################################################################
 class Dashboard(Resource):
@@ -125,7 +134,6 @@ class Dashboard(Resource):
 
 
 ##################################################### STUDY API ####################################################################
-
 class Study(Resource): #user_id to be passed later
     def get(self):
         try:
@@ -137,96 +145,139 @@ class Study(Resource): #user_id to be passed later
 
             # Fetch user's courses and calculate progress
             try :
-                courses = Course.query.filter_by(user_id=user_id).all()
-                total_courses = len(courses)
-                completed_courses = sum(1 for course in courses if course.end_date and course.end_date < datetime.datetime.now())
-                course_progress = (completed_courses / total_courses) * 100 if total_courses > 0 else 0
-
+                courses = Course.query.filter_by(CourseID=user.courses).first()
                 # Fetch course content
                 course_content = [
                     {
-                        'course_id': course.CourseID,
-                        'course_name': course.CourseName,
-                        'course_description': course.CourseDescription,
-                        'course_content': course.Content
+                        'course_id': courses.CourseID,
+                        'course_name': courses.CourseName,
+                        'course_description': courses.CourseDescription
                     }
-                    for course in courses
                 ]
             except :
                 course_content ="upload karenge"
                 print(course_content)
 
-            # Fetch course documents
-            try :
-                course_documents = Document.query.filter(Document.CourseID.in_([course.CourseID for course in courses])).all()
-                documents_data = [
-                    {
-                        'document_id': document.DocumentID,
-                        'course_id': document.CourseID,
-                        'document_name': document.DocumentName,
-                        'document_path': document.DocumentPath,
-                        'uploaded_at': document.UploadedAt
-                    }
-                    for document in course_documents
-                ]
-            except :
-                documents_data ="doc upload karenge"
-                print(documents_data)
-
-            # Fetch graded assignments
-            try :
-                graded_assignments = Assignment.query.filter_by(user_id=user_id, status='graded').all()
-                graded_assignments_data = [
-                    {
-                        'assignment_id': assignment.AssignmentID,
-                        'course_id': assignment.CourseID,
-                        'title': assignment.Title,
-                        'description': assignment.Description,
-                        'due_date': assignment.DueDate,
-                        'score': assignment.Score,
-                        'max_score': assignment.MaxScore,
-                        'created_at': assignment.CreatedAt
-                    }
-                    for assignment in graded_assignments
-                ]
-            except :
-                graded_assignments_data ="graded upload karenge"
-                print(graded_assignments_data)
-            # Fetch practice assignments
-            try :
-                practice_assignments = Assignment.query.filter_by(user_id=user_id, status='practice').all()
-                practice_assignments_data = [
-                    {
-                        'assignment_id': assignment.AssignmentID,
-                        'course_id': assignment.CourseID,
-                        'title': assignment.Title,
-                        'description': assignment.Description,
-                        'due_date': assignment.DueDate,
-                        'created_at': assignment.CreatedAt
-                    }
-                    for assignment in practice_assignments
-                ]
-            except :
-                practice_assignments_data ="practice upload karenge"
-                print(practice_assignments_data)
-            # Compile study data
-            study_data = {
-                # 'course_progress': course_progress, {{{{formula based, will be modified later}}}}
-                'course_content': course_content,
-                'course_documents': documents_data,
-                'graded_assignments': graded_assignments_data,
-                'practice_assignments': practice_assignments_data
-            }
-
-            return jsonify({'study': study_data, 'code': 200})
+            return jsonify({'study': course_content, 'code': 200})
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
-        
-##################################################### DOWNLOADS API ####################################################################
+
+    def post(self):
+        try:
+            data = request.get_json()
+            course_name = data.get('course_name')
+            course_description = data.get('course_description')
+            start_date = data.get('start_date')
+            end_date = data.get('end_date')
+
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+            new_course = Course(
+                CourseName=course_name,
+                CourseDescription=course_description,
+                StartDate=start_date,
+                EndDate=end_date,
+                CreatedAt=datetime.utcnow()
+            )
+            db.session.add(new_course)
+            db.session.commit()
+
+            return jsonify({'message': 'Course created successfully', 'code': 201})
+
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of error
+            return jsonify({'error': str(e), 'code': 500})
 
 
-class Downloads(Resource):
+##################################################### LECTURES API ####################################################################
+class Lectures(Resource): #user_id to be passed later
+    def get(self):
+        try:
+            course_id =1
+            #to be done: Login through JWT and pass user_id
+            course = Course.query.get(course_id)
+            if not course:
+                return jsonify({'error': 'Course not found', 'code': 404})
+            # Fetch user's courses and calculate progress
+            try :
+                lectures = Lecture.query.filter_by(CourseID=course.CourseID).all()
+                lectures_data=[]
+                for l in lectures:
+                    lectures_data.append({
+                        'lecture_id': l.LectureID,
+                        'lecture_title': l.LectureTitle,
+                        'lecture_link': l.LectureLink,
+                        'lecture_date': l.LectureDate,
+                        'description': l.Description
+                    })
+            except :
+                lectures_data ="upload karenge"
+            return jsonify({'lectures': lectures_data, 'code': 200})
+        except Exception as e:
+            return jsonify({'error': 'ruk', 'code': 500})
+
+    def post(self):
+        try:
+            data = request.get_json()
+            lecture_title = data.get('lecture_title')
+            lecture_link = data.get('lecture_link')
+            lecture_date = data.get('lecture_date')
+            lecture_description = data.get('lecture_description')
+
+            lecture_date = datetime.strptime(lecture_date, '%Y-%m-%d')
+            new_lecture = Lecture(
+                CourseID=1,
+                LectureTitle=lecture_title,
+                LectureLink=lecture_link,
+                LectureDate=lecture_date,
+                Description=lecture_description,
+                CreatedAt=datetime.utcnow()
+            )
+            db.session.add(new_lecture)
+            db.session.commit()
+
+            return jsonify({'message': 'Lecture created successfully', 'code': 201})
+
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of error
+            return jsonify({'error': str(e), 'code': 500})
+
+
+##################################################### PROFILE API ####################################################################
+class Profile(Resource):
+    def get(self): #user_id to be passed later
+        try:
+            user_id = 1
+            user = User.query.get(user_id)
+            if not user:
+                return jsonify({'error': 'User not found', 'code': 404})
+            
+            
+            # Fetch user's courses
+            try:
+                courses = Course.query.filter_by(id=user.course).all()
+                subjects_taken = [course.CourseName for course in courses]
+            except:
+                subjects_taken = 'Course nahi hai'
+            
+            # Compile profile data
+            profile_data = {
+                'first_name': user.name.split()[0],
+                'last_name': user.name.split()[-1] if len(user.name.split()) > 1 else '',
+                'email': user.email,
+                'mob': user.mob,
+                'subjects_taken': subjects_taken,
+            }
+
+            return jsonify({'profile': profile_data, 'code': 200})
+
+        except Exception as e:
+            return jsonify({'error': 'Something went wrong', 'code': 500})
+
+
+
 
     def get(self): #user_id to be passed later
         try:
@@ -258,63 +309,51 @@ class Downloads(Resource):
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
-##################################################### PROFILE API ####################################################################
 
-class Profile(Resource):
-    
-    def get(self): #user_id to be passed later
+##################################################### COURSEDOCS API ####################################################################
+class CourseDocuments(Resource):
+
+    def get(self):
         try:
-            user_id = 1
-            user = User.query.get(user_id)
-            if not user:
-                return jsonify({'error': 'User not found', 'code': 404})
-            
-            
-            # Fetch user's courses
-            try:
-                courses = Course.query.filter_by(id=user.course).all()
-                subjects_taken = [course.CourseName for course in courses]
-            except:
-                subjects_taken = 'Course nahi hai'
-            
-            # Compile profile data
-            profile_data = {
-                'first_name': user.name.split()[0],
-                'last_name': user.name.split()[-1] if len(user.name.split()) > 1 else '',
-                'email': user.email,
-                'mob': user.mob,
-                'subjects_taken': subjects_taken,
-            }
-
-            return jsonify({'profile': profile_data, 'code': 200})
-
-        except Exception as e:
-            return jsonify({'error': 'Something went wrong', 'code': 500})
-
-class CourseDocs(Resource):
-    
-    def get(self, course_id):
-        try:
+            course_id =1
             course = Course.query.get(course_id)
             if not course:
                 return jsonify({'error': 'Course not found', 'code': 404})
 
-            # Fetch documents related to the course
-            documents = Document.query.filter_by(CourseID=course_id).all()
-            documents_data = [
-                {
-                    'document_id': document.DocumentID,
-                    'document_name': document.DocumentName,
-                    'document_path': document.DocumentPath,
-                    'uploaded_at': document.UploadedAt
-                }
-                for document in documents
-            ]
+            documents = CourseDocs.query.filter_by(CourseID=course_id).all()
+            for document in documents:
+                documents_data = [
+                    {
+                        'document_name': document.DocName,
+                        'document_link': document.DocLink,
+                    }
+                ]
 
             return jsonify({'course_docs': documents_data, 'code': 200})
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
+
+    def post(self):
+        try:
+            data = request.get_json()
+            doc_title = data.get('doc_title')
+            doc_link = data.get('doc_link')
+
+            new_doc = CourseDocs(
+                CourseID=1,
+                DocName=doc_title,
+                DocLink=doc_link
+            )
+            db.session.add(new_doc)
+            db.session.commit()
+
+            return jsonify({'message': 'Document created successfully', 'code': 201})
+
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of error
+            return jsonify({'error': str(e), 'code': 500})
+
 
 class Practice(Resource):
     
@@ -338,6 +377,7 @@ class Practice(Resource):
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
+
 
 class Graded(Resource):
     
@@ -364,17 +404,38 @@ class Graded(Resource):
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
+class ExecuteCode(Resource):
+    def post(self):
+        try:
+            data = request.get_json()
+            code = data.get('code')
+            print(code)
+            # Save the code to a temporary file
+            with open("temp_code.py", "w") as f:
+                f.write(code)
+            
+            # Execute the code and capture the output
+            result = subprocess.run(['python', 'temp_code.py'], capture_output=True, text=True)
+            output = result.stdout + result.stderr
+            # print(result)
+            return jsonify({'output': output, 'code': 200})
+        except Exception as e:
+            return jsonify({'error': str(e), 'code': 500})
+
+
+
+#class Downloads(Resource):
 
 #First Priority
 api.add_resource(Home, "/")
 api.add_resource(Login, "/login")
 api.add_resource(Register, "/register")
 api.add_resource(Dashboard, "/dashboard")
-
+api.add_resource(ExecuteCode, "/execute")
 
 #Second Priority
 api.add_resource(Study, "/study")
-api.add_resource(Downloads, "/downloads")
+# api.add_resource(Downloads, "/downloads")
 # api.add_resource(Forum, "/forum") not needed as am API
 api.add_resource(Profile, "/profile")
 # api.add_resource(Deadlines, "/deadlines")
@@ -383,9 +444,10 @@ api.add_resource(Profile, "/profile")
 
 #Third Priority
 # api.add_resource(Content, "/study/content")
-api.add_resource(CourseDocs, "/study/course_docs")
+api.add_resource(CourseDocuments, "/study/course_docs")
 api.add_resource(Practice, "/study/practice")
 api.add_resource(Graded, "/study/graded")
+api.add_resource(Lectures, "/study/lectures")
 # api.add_resource(Scores, "/scores")
 # api.add_resource(Payments, "/profile/payments")
 # api.add_resource(ATS, "/profile/ats")

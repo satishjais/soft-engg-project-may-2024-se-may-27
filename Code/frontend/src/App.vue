@@ -1,13 +1,16 @@
 <template>
   <router-view />
+  <AceEditor />
 </template>
 
 <script>
-
+import AceEditor from './components/AceEditor.vue'
 
 export default {
   name: 'App',
- 
+  components: {
+    AceEditor
+  }
 }
 </script>
 
