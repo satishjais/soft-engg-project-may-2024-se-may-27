@@ -4,12 +4,12 @@
 </template>
 
 <script>
-import AceEditor from './components/AceEditor.vue'
+// import AceEditor from './components/AceEditor.vue'
 
 export default {
   name: 'App',
   components: {
-    AceEditor
+    // AceEditor
   }
 }
 </script>

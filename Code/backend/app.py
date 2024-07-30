@@ -1,5 +1,4 @@
 from application import app
-<<<<<<< HEAD
 from application.video_chatbot import VideoChat
 from flask import Flask, request,jsonify
 from flask_cors import CORS
@@ -16,11 +15,10 @@ def chat():
    response = videoChatbot.chat(user_input)
    return jsonify({'response':response})
 
-=======
+
 from flask_cors import CORS
 
 CORS(app)
->>>>>>> a017691a133d9e9c528870c498b9b7978c58b455
 
 if __name__ == '__main__':
     # Run the Flask application
