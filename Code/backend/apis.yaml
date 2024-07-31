@@ -1,14 +1,15 @@
-openapi: 3.0.1
+openapi: 3.0.0
 info:
   title: API Documentation
   version: 1.0.0
+  description: API documentation for the application
 paths:
   /:
     post:
-      summary: Welcome to the App
+      summary: Home
       responses:
         '200':
-          description: Returns a welcome message
+          description: Welcome message
           content:
             application/json:
               schema:
@@ -16,6 +17,7 @@ paths:
                 properties:
                   message:
                     type: string
+
   /register:
     post:
       summary: Register a new user
@@ -36,27 +38,18 @@ paths:
                   type: string
                 name:
                   type: string
-                role:
-                  type: string
+                courses:
+                  type: array
+                  items:
+                    type: string
       responses:
         '201':
           description: User created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
         '400':
-          description: Validation error or username already taken
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
+          description: Error in registration
+        '500':
+          description: Internal server error
+
   /login:
     post:
       summary: User login
@@ -74,236 +67,226 @@ paths:
       responses:
         '200':
           description: Login successful
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  token:
-                    type: string
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
+        '400':
+          description: Invalid credentials
+        '500':
+          description: Internal server error
+
   /dashboard:
     get:
-      summary: Get dashboard data
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
+      summary: Get user dashboard
       responses:
         '200':
           description: Dashboard data
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  dashboard:
-                    type: object
         '404':
           description: User not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
+        '500':
+          description: Internal server error
+
   /study:
     get:
-      summary: Get study data
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
+      summary: Get study content
       responses:
         '200':
-          description: Study data
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  study:
-                    type: object
+          description: Study content data
         '404':
           description: User not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-  /downloads:
-    get:
-      summary: Get downloadable content
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
+        '500':
+          description: Internal server error
+    post:
+      summary: Create a new course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                course_name:
+                  type: string
+                course_description:
+                  type: string
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
       responses:
-        '200':
-          description: Downloadable content
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  downloads:
-                    type: array
-                    items:
-                      type: object
-        '404':
-          description: User not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-  /profile:
-    get:
-      summary: Get user profile data
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: User profile data
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  profile:
-                    type: object
-        '404':
-          description: User not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
+        '201':
+          description: Course created successfully
+        '500':
+          description: Internal server error
+
   /study/course_docs:
     get:
       summary: Get course documents
-      parameters:
-        - name: course_id
-          in: query
-          required: true
-          schema:
-            type: integer
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
       responses:
         '200':
-          description: Course documents
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  course_docs:
-                    type: array
-                    items:
-                      type: object
+          description: Course documents data
         '404':
           description: Course not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
+        '500':
+          description: Internal server error
+    post:
+      summary: Upload a new course document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                doc_title:
+                  type: string
+                doc_link:
+                  type: string
+      responses:
+        '201':
+          description: Document created successfully
+        '500':
+          description: Internal server error
+
   /study/practice:
     get:
       summary: Get practice assignments
       parameters:
-        - name: user_id
-          in: query
+        - in: path
+          name: user_id
           required: true
           schema:
             type: integer
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
       responses:
         '200':
-          description: Practice assignments
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  practice_assignments:
-                    type: array
-                    items:
-                      type: object
-        '404':
-          description: User not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
+          description: Practice assignments data
+        '500':
+          description: Internal server error
+    post:
+      summary: Create a new practice assignment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assignment_title:
+                  type: string
+                assignment_description:
+                  type: string
+                due_date:
+                  type: string
+                  format: date
+      responses:
+        '201':
+          description: Practice assignment created successfully
+        '500':
+          description: Internal server error
+
   /study/graded:
     get:
       summary: Get graded assignments
       parameters:
-        - name: user_id
-          in: query
+        - in: path
+          name: user_id
           required: true
           schema:
             type: integer
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
       responses:
         '200':
-          description: Graded assignments
+          description: Graded assignments data
+        '500':
+          description: Internal server error
+    post:
+      summary: Create a new graded assignment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assignment_title:
+                  type: string
+                assignment_description:
+                  type: string
+                due_date:
+                  type: string
+                  format: date
+                score:
+                  type: number
+                max_score:
+                  type: number
+      responses:
+        '201':
+          description: Graded assignment created successfully
+        '500':
+          description: Internal server error
+
+  /study/lectures:
+    get:
+      summary: Get lectures
+      responses:
+        '200':
+          description: Lectures data
+        '404':
+          description: Course not found
+        '500':
+          description: Internal server error
+    post:
+      summary: Create a new lecture
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lecture_title:
+                  type: string
+                lecture_link:
+                  type: string
+                lecture_date:
+                  type: string
+                  format: date
+                lecture_description:
+                  type: string
+      responses:
+        '201':
+          description: Lecture created successfully
+        '500':
+          description: Internal server error
+
+  /genai/videochat:
+    post:
+      summary: Chat with the GenAI assistant about video content and explain concepts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_input:
+                  type: string
+                content_type:
+                  type: string
+                  enum: [video, concept]
+                difficulty_level:
+                  type: string
+                  enum: [beginner, intermediate, advanced]
+      responses:
+        '200':
+          description: Successful response from GenAI
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  graded_assignments:
-                    type: array
-                    items:
-                      type: object
-        '404':
-          description: User not found
+                  answer:
+                    type: string
+        '400':
+          description: Bad request
           content:
             application/json:
               schema:
@@ -311,9 +294,10 @@ paths:
                 properties:
                   error:
                     type: string
-  /execute:
+
+  /genai/programming_feedback:
     post:
-      summary: Execute Python code
+      summary: Get AI-generated feedback for programming tests
       requestBody:
         required: true
         content:
@@ -323,20 +307,22 @@ paths:
               properties:
                 code:
                   type: string
-                  description: The Python code to be executed
+                language:
+                  type: string
+                test_results:
+                  type: object
       responses:
         '200':
-          description: Execution result
+          description: AI-generated feedback
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  output:
+                  feedback:
                     type: string
-                    description: The output of the executed code
-        '500':
-          description: Internal server error
+        '400':
+          description: Bad request
           content:
             application/json:
               schema:
@@ -344,4 +330,68 @@ paths:
                 properties:
                   error:
                     type: string
-                    description: Error message
+
+  /genai/generate_study_plan:
+    post:
+      summary: Generate a personalized study plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                course_id:
+                  type: string
+                user_id:
+                  type: string
+                duration_weeks:
+                  type: integer
+      responses:
+        '200':
+          description: Generated study plan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  study_plan:
+                    type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /profile:
+    get:
+      summary: Get user profile
+      responses:
+        '200':
+          description: Profile data
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
+  /execute:
+    post:
+      summary: Execute code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+      responses:
+        '200':
+          description: Code execution output
+        '500':
+          description: Internal server error
