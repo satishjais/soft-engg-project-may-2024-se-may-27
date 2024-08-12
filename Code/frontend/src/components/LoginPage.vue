@@ -46,7 +46,6 @@
 </template>
 
 <script>
-// import axios from 'axios';
 export default {
   name: 'LoginPage',
   data() {
@@ -57,40 +56,43 @@ export default {
   },
   methods: {
     async login() {
-  console.log('Sending login request:', {
-    username: this.username,
-    password: this.password
-  });
-
-  try {
-    const response = await fetch('http://127.0.0.1:2000/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+      console.log('Sending login request:', {
         username: this.username,
         password: this.password
-      })
-    });
-    const data = await response.json(); 
-    if (data.code === 200) {
-      // Success case
-      console.log('Login successful!', data);
-      localStorage.setItem('access_token', data.token);
-      this.$router.push('/');
-    } else if (response.status === 400) {
-      // Invalid credentials
-      alert('Invalid credentials: ' + data.error);
-    } else {
-      // Other errors (e.g., server errors)
-      alert('Login failed: ' + data.error);
+      });
+
+      try {
+        const response = await fetch('http://127.0.0.1:2000/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: this.username,
+            password: this.password
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.code === 200) {
+          // Success case
+          console.log('Login successful!', data);
+          localStorage.setItem('access_token', data.token);
+          localStorage.setItem('user_id', data.user_id);
+          console.log(data.token, data.user_id);
+          const userId = data.user_id; 
+          this.$router.push(`/dashboard/${userId}`);
+        
+        } else {
+          // Handling different error codes
+          alert('Login failed: ' + data.error);
+        }
+      } catch (error) {
+        console.error('An error occurred during login:', error.message);
+        alert('Login failed: ' + error.message); 
+      }
     }
-  } catch (error) {
-    console.error('An error occurred during login:', error.message);
-    alert('Login failed: ' + error.message); 
-  }
-}
   }
 }
 </script>

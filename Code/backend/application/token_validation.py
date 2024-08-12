@@ -1,35 +1,14 @@
-import application.errors as errors
-import datetime
-import jwt
-from flask import current_app as app, jsonify, request
-from functools import wraps
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token
+from flask import Flask, jsonify, request
 
-def validate_jwt():
-    if 'Authorization' not in request.headers:
-        return jsonify({'error': 'Authorization token is required'}), 401
-    token = request.headers['Authorization'].split(' ')[1]
-    try:
-        user = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-    except jwt.ExpiredSignatureError:
-        return jsonify({'error': 'JWT token has expired'}), 401
-    except jwt.InvalidTokenError:
-        return jsonify({'error': 'Invalid JWT token'}), 401
+app = Flask(__name__)
+app.config['JWT_SECRET_KEY'] = 'your_secret_key'
+jwt = JWTManager(app)
 
-    return user
+@jwt.unauthorized_loader
+def unauthorized_callback(error):
+    return jsonify({"message": "Missing or invalid token"}), 401
 
-def generate_jwt(user):
-    token = jwt.encode({
-        'id': user.id,
-        'role': user.role,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=100)
-    }, app.config['SECRET_KEY'], algorithm="HS256")
-    return token
-
-def login_required(func):
-    @wraps(func)
-    def decorated_func(*args, **kwargs):
-        user = validate_jwt()
-        if isinstance(user, tuple):  # validate_jwt returns a tuple in case of error
-            return user
-        return func(user, *args, **kwargs)
-    return decorated_func
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({"message": "Token has expired"}), 401

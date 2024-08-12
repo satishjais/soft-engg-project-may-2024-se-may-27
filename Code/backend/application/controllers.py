@@ -2,10 +2,12 @@ import os
 from flask import request, jsonify, make_response, send_file
 from flask_restful import Resource
 from application.models import User, Course, Assignment, Announcement, Lecture, CourseDocs
-from application.token_validation import validate_jwt, generate_jwt
 from application import db, api, app
 from flask_bcrypt import Bcrypt
 import datetime
+from flask import Flask, jsonify
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+
 from datetime import datetime
 
 bcrypt = Bcrypt()
@@ -74,10 +76,9 @@ class Login(Resource):
                 return jsonify({'error': 'Invalid credentials', 'code': 400})
             user_id=user.id
             user_role=user.role
-
-            token = generate_jwt({'user':user})
-            print("hl")
-            return jsonify({'token': token, 'code': 200})
+            access_token = create_access_token(identity={'user_id': user_id})
+            print(access_token)
+            return jsonify({'token': access_token, 'code': 200, 'user_id': user_id})
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
@@ -85,10 +86,13 @@ class Login(Resource):
 
 ##################################################### DASHBOARD API ####################################################################
 class Dashboard(Resource):
+    @jwt_required()  # Ensure the user is authenticated
     def get(self):
         try:
-            user_id=2
-            #to be done: Login through JWT and pass user_id
+            # Get the user_id from the JWT token
+            current_user = get_jwt_identity()
+            user_id = current_user['user_id']
+
             user = User.query.get(user_id)
             if not user:
                 return jsonify({'error': 'User not found', 'code': 404})
@@ -107,16 +111,17 @@ class Dashboard(Resource):
                     for announcement in announcements
                 ]
             except:
-                announcements_data = 'nahi hai'
+                announcements_data = []
+
+            # Fetch user's assignments
             try:
-                assignment=Assignment.get_all()
-                deadlines_data = []
-                for a in assignment:
-                    deadlines_data.append({
-                        a.Title: a.DueDate
-                    })
+                assignments = Assignment.query.filter_by(user_id=user_id).all()
+                deadlines_data = [
+                    {assignment.Title: assignment.DueDate} for assignment in assignments
+                ]
             except:
-                deadlines_data = 'nahi hai'
+                deadlines_data = []
+
             # Compile dashboard data
             dashboard_data = {
                 'user': {
@@ -131,7 +136,6 @@ class Dashboard(Resource):
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
-
 
 ##################################################### STUDY API ####################################################################
 class Study(Resource): #user_id to be passed later

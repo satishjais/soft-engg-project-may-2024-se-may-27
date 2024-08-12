@@ -24,10 +24,12 @@ const routes=[
         path:'/'
     },
     {
-        name:'DashboardPage',
-        component:DashboardPage,
-        path:'/dashboard'
-    },
+        path: '/dashboard/:userId',
+        name: 'DashboardBoard',
+        component: DashboardPage,
+        // meta: { requiresAuth: true },
+        props: true
+      },
     
 ]
 const router=createRouter({
