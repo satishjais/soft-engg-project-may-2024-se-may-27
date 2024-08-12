@@ -76,6 +76,7 @@ class Login(Resource):
             user_role=user.role
 
             token = generate_jwt({'user':user})
+            print("hl")
             return jsonify({'token': token, 'code': 200})
 
         except Exception as e:
@@ -86,7 +87,7 @@ class Login(Resource):
 class Dashboard(Resource):
     def get(self):
         try:
-            user_id=1
+            user_id=2
             #to be done: Login through JWT and pass user_id
             user = User.query.get(user_id)
             if not user:
@@ -125,7 +126,7 @@ class Dashboard(Resource):
                 'deadlines': deadlines_data,
                 'announcements': announcements_data,
             }
-
+            print(dashboard_data)
             return jsonify({'dashboard': dashboard_data, 'code': 200})
 
         except Exception as e:

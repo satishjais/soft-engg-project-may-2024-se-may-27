@@ -1,6 +1,7 @@
 import LoginPage from "./components/LoginPage.vue";
 import RegistrationPage from "./components/RegistrationPage.vue";
-// import DashboardPage from "./components/DashboardPage.vue";
+import DashboardPage from "./components/DashboardPage.vue";
+import HomePage from "./components/HomePage.vue";
 import {
     createRouter,createWebHistory
 }
@@ -17,11 +18,16 @@ const routes=[
         component:RegistrationPage,
         path:'/register'
     },
-    // {
-    //     name:'DashboardPage',
-    //     component:DashboardPage,
-    //     path:'/dashboard'
-    // },
+    {
+        name:'HomePage',
+        component:HomePage,
+        path:'/'
+    },
+    {
+        name:'DashboardPage',
+        component:DashboardPage,
+        path:'/dashboard'
+    },
     
 ]
 const router=createRouter({
