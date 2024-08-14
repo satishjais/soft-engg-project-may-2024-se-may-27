@@ -82,7 +82,12 @@ export default {
           localStorage.setItem('user_id', data.user_id);
           console.log(data.token, data.user_id);
           const userId = data.user_id; 
-          this.$router.push(`/dashboard/${userId}`);
+          // Check the user's role and redirect accordingly
+          if (data.role === 'Admin') {
+            this.$router.push(`/dashboard/admin`);
+          } else {
+            this.$router.push(`/dashboard/${userId}`);
+          }
         
         } else {
           // Handling different error codes

@@ -7,7 +7,6 @@ from flask_bcrypt import Bcrypt
 import datetime
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-
 from datetime import datetime
 
 bcrypt = Bcrypt()
@@ -71,16 +70,27 @@ class Login(Resource):
             data = request.get_json()
             username = data.get('username')
             password = data.get('password')
+
+            # Fetch user based on the provided username
             user = User.query.filter_by(username=username).first()
+
+            # Check if the user exists and the password is correct
             if not user or not bcrypt.check_password_hash(user.password, password):
                 return jsonify({'error': 'Invalid credentials', 'code': 400})
-            user_id=user.id
-            user_role=user.role
-            access_token = create_access_token(identity={'user_id': user_id})
-            print(access_token)
-            return jsonify({'token': access_token, 'code': 200, 'user_id': user_id})
+
+            # Extract user ID and role
+            user_id = user.id
+            user_role = user.role
+
+            # Create access token with user ID and role included in the identity
+            access_token = create_access_token(identity={'user_id': user_id, 'role': user_role})
+            print(user_role)
+
+            # Return the token, user ID, and role in the response
+            return jsonify({'token': access_token, 'code': 200, 'user_id': user_id, 'role': user_role})
 
         except Exception as e:
+            # Handle any unexpected errors
             return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
 
 
@@ -138,35 +148,51 @@ class Dashboard(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
 ##################################################### STUDY API ####################################################################
-class Study(Resource): #user_id to be passed later
+class Study(Resource):
+    @jwt_required()
     def get(self):
         try:
-            user_id =1
-            #to be done: Login through JWT and pass user_id
+            current_user = get_jwt_identity()
+            user_id = current_user['user_id']
             user = User.query.get(user_id)
             if not user:
                 return jsonify({'error': 'User not found', 'code': 404})
 
-            # Fetch user's courses and calculate progress
-            try :
-                courses = Course.query.filter_by(CourseID=user.courses).first()
-                # Fetch course content
+            if user.role == 'Admin':
+                courses = Course.query.all()
+                if not courses:
+                    return jsonify({'study': [], 'code': 200})
+
                 course_content = [
                     {
-                        'course_id': courses.CourseID,
-                        'course_name': courses.CourseName,
-                        'course_description': courses.CourseDescription
+                        'course_id': course.CourseID,
+                        'course_name': course.CourseName,
+                        'course_description': course.CourseDescription,
+                        'start_date': course.StartDate,
+                        'end_date': course.EndDate,
                     }
+                    for course in courses
                 ]
-            except :
-                course_content ="upload karenge"
-                print(course_content)
+                return jsonify({'study': course_content, 'code': 200})
 
+            courses = Course.query.filter(Course.CourseID.in_(user.courses)).all()
+            if not courses:
+                return jsonify({'study': [], 'code': 200})
+
+            course_content = [
+                {
+                    'course_id': course.CourseID,
+                    'course_name': course.CourseName,
+                    'course_description': course.CourseDescription
+                }
+                for course in courses
+            ]
             return jsonify({'study': course_content, 'code': 200})
 
         except Exception as e:
-            return jsonify({'error': 'Something went wrong', 'code': 500})
+            return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
 
+    @jwt_required()
     def post(self):
         try:
             data = request.get_json()
@@ -191,9 +217,24 @@ class Study(Resource): #user_id to be passed later
             return jsonify({'message': 'Course created successfully', 'code': 201})
 
         except Exception as e:
-            db.session.rollback()  # Rollback in case of error
+            db.session.rollback()
             return jsonify({'error': str(e), 'code': 500})
 
+    @jwt_required()
+    def delete(self, course_id):
+        try:
+            course = Course.query.get(course_id)
+            if not course:
+                return jsonify({'error': 'Course not found', 'code': 404})
+
+            db.session.delete(course)
+            db.session.commit()
+
+            return jsonify({'message': 'Course deleted successfully', 'code': 200})
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e), 'code': 500})
 
 ##################################################### LECTURES API ####################################################################
 class Lectures(Resource): #user_id to be passed later
@@ -257,15 +298,14 @@ class Profile(Resource):
             user = User.query.get(user_id)
             if not user:
                 return jsonify({'error': 'User not found', 'code': 404})
-            
-            
+
             # Fetch user's courses
             try:
                 courses = Course.query.filter_by(id=user.course).all()
                 subjects_taken = [course.CourseName for course in courses]
             except:
                 subjects_taken = 'Course nahi hai'
-            
+
             # Compile profile data
             profile_data = {
                 'first_name': user.name.split()[0],
@@ -293,7 +333,7 @@ class Profile(Resource):
 
             # Fetch all documents related to the user's courses
             try :
-                documents = Document.query.join(Course, Document.CourseID == Course.CourseID).filter(Course.user_id == user_id).all()
+                documents = CourseDocs.query.join(Course, CourseDocs.CourseID == Course.CourseID).filter(Course.user_id == user_id).all()
                 documents_data = [
                     {
                         'document_id': document.DocumentID,
@@ -360,7 +400,6 @@ class CourseDocuments(Resource):
 
 
 class Practice(Resource):
-    
     def get(self, user_id):
         try:
             # Fetch practice assignments related to the user
@@ -384,7 +423,6 @@ class Practice(Resource):
 
 
 class Graded(Resource):
-    
     def get(self, user_id):
         try:
             # Fetch graded assignments related to the user
@@ -408,24 +446,85 @@ class Graded(Resource):
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
+class DashboardAdmin(Resource):
+    print('done')
+    @jwt_required()  # Ensure the user is authenticated
+    def get(self):
+        try:
+            # Get the user_id and role from the JWT token
+            current_user = get_jwt_identity()
+            user_id = current_user['user_id']
+            user_role = current_user['role']
+            # Ensure that only admin users can access this dashboard
+            if user_role != 'Admin':
+                return jsonify({'error': 'Access forbidden: Admins only', 'code': 403})
 
-#class Downloads(Resource):
+            user = User.query.get(user_id)
+            if not user:
+                return jsonify({'error': 'User not found', 'code': 404})
+
+            # Fetch counts for the dashboard
+            total_users = User.query.count()
+            print(total_users)
+            total_courses = Course.query.count()
+            total_assignments = Assignment.query.count()
+            total_lectures = Lecture.query.count()
+            total_announcements = Announcement.query.count()
+            total_docs = CourseDocs.query.count()
+
+            # Fetch all announcements
+            announcements = Announcement.query.all()
+            announcements_data = [
+                {
+                    'announcement_id': announcement.AnnouncementID,
+                    'course_id': announcement.CourseID,
+                    'title': announcement.Title,
+                    'content': announcement.Content,
+                    'created_at': announcement.CreatedAt
+                }
+                for announcement in announcements
+            ]
+
+            # Fetch all assignments and their deadlines
+            assignments = Assignment.query.all()
+            deadlines_data = {assignment.Title: assignment.DueDate for assignment in assignments}
+
+            # Compile the dashboard data
+            dashboard_data = {
+                'user': {
+                    'id': user.id,
+                    'name': user.name
+                },
+                'total_users': total_users,
+                'total_courses': total_courses,
+                'total_assignments': total_assignments,
+                'total_lectures': total_lectures,
+                'total_announcements': total_announcements,
+                'total_docs': total_docs,
+                'deadlines': deadlines_data,
+                'announcements': announcements_data,
+            }
+
+            return jsonify({'dashboard': dashboard_data, 'code': 200})
+
+        except Exception as e:
+            return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
+
 
 #First Priority
 api.add_resource(Home, "/")
 api.add_resource(Login, "/login")
 api.add_resource(Register, "/register")
 api.add_resource(Dashboard, "/dashboard")
-
+api.add_resource(DashboardAdmin, "/dashboard/admin")
 
 #Second Priority
-api.add_resource(Study, "/study")
+api.add_resource(Study, "/study", "/study/<int:course_id>")
 # api.add_resource(Downloads, "/downloads")
 # api.add_resource(Forum, "/forum") not needed as am API
 api.add_resource(Profile, "/profile")
 # api.add_resource(Deadlines, "/deadlines")
 # api.add_resource(Announcements, "/announcements")
-
 
 #Third Priority
 # api.add_resource(Content, "/study/content")
