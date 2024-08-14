@@ -237,43 +237,50 @@ class Study(Resource):
             return jsonify({'error': str(e), 'code': 500})
 
 ##################################################### LECTURES API ####################################################################
-class Lectures(Resource): #user_id to be passed later
+class Lectures(Resource):
+    @jwt_required()
     def get(self):
         try:
-            course_id =1
-            #to be done: Login through JWT and pass user_id
-            course = Course.query.get(course_id)
+            courses = Course.query.all()
             if not course:
                 return jsonify({'error': 'Course not found', 'code': 404})
-            # Fetch user's courses and calculate progress
-            try :
-                lectures = Lecture.query.filter_by(CourseID=course.CourseID).all()
-                lectures_data=[]
-                for l in lectures:
-                    lectures_data.append({
-                        'lecture_id': l.LectureID,
-                        'lecture_title': l.LectureTitle,
-                        'lecture_link': l.LectureLink,
-                        'lecture_date': l.LectureDate,
-                        'description': l.Description
-                    })
-            except :
-                lectures_data ="upload karenge"
-            return jsonify({'lectures': lectures_data, 'code': 200})
+            lectures_data=[]
+            try:
+                for course in courses:
+                    lectures = Lecture.query.filter_by(CourseID=course.CourseID).all()
+                    lectures_data1 = []
+                    for l in lectures:
+                        lectures_data1.append({
+                            'course_name': course.CourseName,
+                            'lecture_id': l.LectureID,
+                            'lecture_title': l.LectureTitle,
+                            'lecture_link': l.LectureLink,
+                            'lecture_date': l.LectureDate.strftime('%Y-%m-%d'),
+                            'description': l.Description,
+                        })
+                    lectures_data.append(lectures_data1)
+            except:
+                lectures_data=['']
+            return jsonify({'lectures': lectures_data, 'courses': courses, 'code': 200})
         except Exception as e:
-            return jsonify({'error': 'ruk', 'code': 500})
+            return jsonify({'error': str(e), 'code': 500})
 
+    @jwt_required()
     def post(self):
         try:
             data = request.get_json()
+            course_id = data.get('course_id')
             lecture_title = data.get('lecture_title')
             lecture_link = data.get('lecture_link')
             lecture_date = data.get('lecture_date')
             lecture_description = data.get('lecture_description')
 
+            if not course_id or not lecture_title or not lecture_link or not lecture_date:
+                return jsonify({'error': 'Missing required fields', 'code': 400})
+
             lecture_date = datetime.strptime(lecture_date, '%Y-%m-%d')
             new_lecture = Lecture(
-                CourseID=1,
+                CourseID=course_id,
                 LectureTitle=lecture_title,
                 LectureLink=lecture_link,
                 LectureDate=lecture_date,
@@ -283,11 +290,21 @@ class Lectures(Resource): #user_id to be passed later
             db.session.add(new_lecture)
             db.session.commit()
 
-            return jsonify({'message': 'Lecture created successfully', 'code': 201})
-
+            return jsonify({
+                'message': 'Lecture created successfully',
+                'new_lecture': {
+                    'lecture_id': new_lecture.LectureID,
+                    'lecture_title': new_lecture.LectureTitle,
+                    'lecture_link': new_lecture.LectureLink,
+                    'lecture_date': new_lecture.LectureDate.strftime('%Y-%m-%d'),
+                    'description': new_lecture.Description
+                },
+                'code': 201
+            })
         except Exception as e:
             db.session.rollback()  # Rollback in case of error
             return jsonify({'error': str(e), 'code': 500})
+
 
 
 ##################################################### PROFILE API ####################################################################
@@ -398,7 +415,7 @@ class CourseDocuments(Resource):
             db.session.rollback()  # Rollback in case of error
             return jsonify({'error': str(e), 'code': 500})
 
-
+##################################################### PRACTICE ASSIGNMENT API ####################################################################
 class Practice(Resource):
     def get(self, user_id):
         try:
@@ -422,6 +439,7 @@ class Practice(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
 
+##################################################### GRADED ASSIGNMENT API ####################################################################
 class Graded(Resource):
     def get(self, user_id):
         try:
@@ -446,6 +464,8 @@ class Graded(Resource):
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500})
 
+
+##################################################### DASHBOARD ADMIN API ####################################################################
 class DashboardAdmin(Resource):
     print('done')
     @jwt_required()  # Ensure the user is authenticated
@@ -511,27 +531,23 @@ class DashboardAdmin(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
 
 
-#First Priority
+
 api.add_resource(Home, "/")
 api.add_resource(Login, "/login")
 api.add_resource(Register, "/register")
 api.add_resource(Dashboard, "/dashboard")
 api.add_resource(DashboardAdmin, "/dashboard/admin")
-
-#Second Priority
 api.add_resource(Study, "/study", "/study/<int:course_id>")
-# api.add_resource(Downloads, "/downloads")
-# api.add_resource(Forum, "/forum") not needed as am API
 api.add_resource(Profile, "/profile")
-# api.add_resource(Deadlines, "/deadlines")
-# api.add_resource(Announcements, "/announcements")
-
-#Third Priority
-# api.add_resource(Content, "/study/content")
 api.add_resource(CourseDocuments, "/study/course_docs")
 api.add_resource(Practice, "/study/practice")
 api.add_resource(Graded, "/study/graded")
 api.add_resource(Lectures, "/study/lectures")
+# api.add_resource(Downloads, "/downloads")
+# api.add_resource(Forum, "/forum") not needed as am API
+# api.add_resource(Deadlines, "/deadlines")
+# api.add_resource(Announcements, "/announcements")
+# api.add_resource(Content, "/study/content")
 # api.add_resource(Scores, "/scores")
 # api.add_resource(Payments, "/profile/payments")
 # api.add_resource(ATS, "/profile/ats")

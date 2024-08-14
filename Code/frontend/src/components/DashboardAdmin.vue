@@ -32,7 +32,7 @@
       <div class="manage-buttons">
         <button @click="navigateTo('ManageCourses')">Manage Courses</button>
         <button @click="navigateTo('manage-assignments')">Manage Assignments</button>
-        <button @click="navigateTo('manage-lectures')">Manage Lectures</button>
+        <button @click="navigateTo('ManageLectures')">Manage Lectures</button>
         <button @click="navigateTo('manage-announcements')">Manage Announcements</button>
         <button @click="navigateTo('manage-docs')">Manage Course Docs</button>
       </div>
