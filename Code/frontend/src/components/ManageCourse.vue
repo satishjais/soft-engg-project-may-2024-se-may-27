@@ -1,10 +1,10 @@
 <template>
-    <div class="manage-courses">
-      <h1>Manage Courses</h1>
+    <div class="ManageCourse">
+      <h1>Manage Course</h1>
   
       <!-- List of Courses -->
       <div v-if="courses.length">
-        <h2>All Courses</h2>
+        <h2>Our Course</h2>
         <ul>
           <li v-for="course in courses" :key="course.course_id">
             <strong>{{ course.course_name }}</strong>
@@ -12,7 +12,8 @@
             <small>Start Date: {{ formatDate(course.start_date) }}</small>
             <br>
             <small>End Date: {{ formatDate(course.end_date) }}</small>
-            <button @click="deleteCourse(course.course_id)">Delete</button>
+            <!-- <br>
+            <button style="margin-top: 2%;" @click="deleteCourse(course.course_id)">Delete</button> -->
           </li>
         </ul>
       </div>
@@ -21,29 +22,29 @@
       </div>
   
       <!-- Add Course Form -->
-      <h2>Add a New Course</h2>
-      <form @submit.prevent="addCourse">
+      <h2>Edit Course Info</h2>
+      <form @submit.prevent="editCourses">
         <div>
           <label for="courseName">Course Name:</label>
-          <input type="text" id="courseName" v-model="newCourse.course_name" required />
+          <input type="text" id="courseName" v-model="editCourse.course_name" required />
         </div>
   
         <div>
           <label for="courseDescription">Course Description:</label>
-          <textarea id="courseDescription" v-model="newCourse.course_description" required></textarea>
+          <textarea id="courseDescription" v-model="editCourse.course_description" required></textarea>
         </div>
   
         <div>
           <label for="startDate">Start Date:</label>
-          <input type="date" id="startDate" v-model="newCourse.start_date" required />
+          <input type="date" id="startDate" v-model="editCourse.start_date" required />
         </div>
   
         <div>
           <label for="endDate">End Date:</label>
-          <input type="date" id="endDate" v-model="newCourse.end_date" required />
+          <input type="date" id="endDate" v-model="editCourse.end_date" required />
         </div>
   
-        <button type="submit">Add Course</button>
+        <button type="submit">Edit Course</button>
       </form>
     </div>
   </template>
@@ -54,7 +55,7 @@
     data() {
       return {
         courses: [], // Array to hold the list of courses
-        newCourse: {
+        editCourse: {
           course_name: "",
           course_description: "",
           start_date: "",
@@ -85,20 +86,20 @@
           alert("An error occurred while fetching courses.");
         }
       },
-      async addCourse() {
+      async editCourses() {
         try {
           const response = await fetch("http://127.0.0.1:2000/study", {
-            method: "POST",
+            method: "PUT",
             headers: {
               "Content-Type": "application/json",
               "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
             },
-            body: JSON.stringify(this.newCourse),
+            body: JSON.stringify(this.editCourse),
           });
           const data = await response.json();
           if (response.ok) {
-            alert("Course added successfully!");
-            this.newCourse = {
+            alert("Course edited successfully!");
+            this.editCourse = {
               course_name: "",
               course_description: "",
               start_date: "",
@@ -106,33 +107,33 @@
             };
             await this.fetchCourses(); // Refresh the list after adding a new course
           } else {
-            alert(data.error || "Failed to add course");
+            alert(data.error || "Failed to edit course");
           }
         } catch (error) {
           console.error("Error:", error);
-          alert("An error occurred while adding the course.");
+          alert("An error occurred while editing the course.");
         }
       },
-      async deleteCourse(courseId) {
-        try {
-          const response = await fetch(`http://127.0.0.1:2000/study/${courseId}`, {
-            method: "DELETE",
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
-            },
-          });
-          const data = await response.json();
-          if (response.ok) {
-            alert("Course deleted successfully!");
-            await this.fetchCourses(); // Refresh the list after deletion
-          } else {
-            alert(data.error || "Failed to delete course");
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          alert("An error occurred while deleting the course.");
-        }
-      },
+      // async deleteCourse(courseId) {
+      //   try {
+      //     const response = await fetch(`http://127.0.0.1:2000/study/${courseId}`, {
+      //       method: "DELETE",
+      //       headers: {
+      //         "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+      //       },
+      //     });
+      //     const data = await response.json();
+      //     if (response.ok) {
+      //       alert("Course deleted successfully!");
+      //       await this.fetchCourses(); // Refresh the list after deletion
+      //     } else {
+      //       alert(data.error || "Failed to delete course");
+      //     }
+      //   } catch (error) {
+      //     console.error("Error:", error);
+      //     alert("An error occurred while deleting the course.");
+      //   }
+      // },
       formatDate(date) {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(date).toLocaleDateString(undefined, options);

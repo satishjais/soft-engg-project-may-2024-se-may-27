@@ -41,6 +41,8 @@ class Lecture(db.Model):
     LectureLink = db.Column(db.String, nullable=False)
     LectureDate = db.Column(db.Date)
     Description = db.Column(db.String)
+    LectureNumber = db.Column(db.Integer)
+    WeekNumber = db.Column(db.Integer)
     CreatedAt = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Announcement(db.Model):

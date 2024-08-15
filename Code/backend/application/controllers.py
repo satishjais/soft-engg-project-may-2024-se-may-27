@@ -160,8 +160,8 @@ class Study(Resource):
                 return jsonify({'error': 'User not found', 'code': 404})
 
             if user.role == 'Admin':
-                courses = Course.query.all()
-                if not courses:
+                course = Course.query.all()[0]
+                if not course:
                     return jsonify({'study': [], 'code': 200})
 
                 course_content = [
@@ -172,97 +172,91 @@ class Study(Resource):
                         'start_date': course.StartDate,
                         'end_date': course.EndDate,
                     }
-                    for course in courses
                 ]
+
                 return jsonify({'study': course_content, 'code': 200})
-
-            courses = Course.query.filter(Course.CourseID.in_(user.courses)).all()
-            if not courses:
-                return jsonify({'study': [], 'code': 200})
-
-            course_content = [
-                {
-                    'course_id': course.CourseID,
-                    'course_name': course.CourseName,
-                    'course_description': course.CourseDescription
-                }
-                for course in courses
-            ]
-            return jsonify({'study': course_content, 'code': 200})
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
 
     @jwt_required()
-    def post(self):
+    def put(self):
         try:
             data = request.get_json()
             course_name = data.get('course_name')
             course_description = data.get('course_description')
             start_date = data.get('start_date')
             end_date = data.get('end_date')
-
             start_date = datetime.strptime(start_date, '%Y-%m-%d')
             end_date = datetime.strptime(end_date, '%Y-%m-%d')
-
-            new_course = Course(
-                CourseName=course_name,
-                CourseDescription=course_description,
-                StartDate=start_date,
-                EndDate=end_date,
-                CreatedAt=datetime.utcnow()
-            )
-            db.session.add(new_course)
+            course = Course.query.all()
+            course = course[0]
+            course.CourseName=course_name
+            course.CourseDescription=course_description
+            course.StartDate=start_date
+            course.EndDate=end_date
+            course.CreatedAt=datetime.utcnow()
+            # editCourse=Course(
+            #     CourseID=course.CourseID,
+            #     CourseName=course_name,
+            #     CourseDescription=course_description,
+            #     StartDate=start_date,
+            #     EndDate=end_date,
+            #     CreatedAt=datetime.utcnow()
+            # )
+            # db.session.update(editCourse)
+            print(course.CourseName)
             db.session.commit()
 
-            return jsonify({'message': 'Course created successfully', 'code': 201})
+            return jsonify({'message': 'Course edited successfully', 'code': 201})
 
         except Exception as e:
             db.session.rollback()
             return jsonify({'error': str(e), 'code': 500})
 
-    @jwt_required()
-    def delete(self, course_id):
-        try:
-            course = Course.query.get(course_id)
-            if not course:
-                return jsonify({'error': 'Course not found', 'code': 404})
+    # @jwt_required()
+    # def delete(self, course_id):
+    #     try:
+    #         course = Course.query.get(course_id)
+    #         if not course:
+    #             return jsonify({'error': 'Course not found', 'code': 404})
 
-            db.session.delete(course)
-            db.session.commit()
+    #         db.session.delete(course)
+    #         db.session.commit()
 
-            return jsonify({'message': 'Course deleted successfully', 'code': 200})
+    #         return jsonify({'message': 'Course deleted successfully', 'code': 200})
 
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({'error': str(e), 'code': 500})
+    #     except Exception as e:
+    #         db.session.rollback()
+    #         return jsonify({'error': str(e), 'code': 500})
 
 ##################################################### LECTURES API ####################################################################
 class Lectures(Resource):
     @jwt_required()
     def get(self):
         try:
-            courses = Course.query.all()
+            course = Course.query.all()
+            course = course[0]
             if not course:
                 return jsonify({'error': 'Course not found', 'code': 404})
             lectures_data=[]
             try:
-                for course in courses:
-                    lectures = Lecture.query.filter_by(CourseID=course.CourseID).all()
-                    lectures_data1 = []
-                    for l in lectures:
-                        lectures_data1.append({
-                            'course_name': course.CourseName,
-                            'lecture_id': l.LectureID,
-                            'lecture_title': l.LectureTitle,
-                            'lecture_link': l.LectureLink,
-                            'lecture_date': l.LectureDate.strftime('%Y-%m-%d'),
-                            'description': l.Description,
-                        })
-                    lectures_data.append(lectures_data1)
+                lectures = Lecture.query.filter_by(CourseID=course.CourseID).all()
+                for l in lectures:
+                    lectures_data.append({
+                        'course_name': course.CourseName,
+                        'lecture_id': l.LectureID,
+                        'lecture_title': l.LectureTitle,
+                        'lecture_link': l.LectureLink,
+                        'lecture_date': l.LectureDate.strftime('%Y-%m-%d'),
+                        'description': l.Description,
+                        'week_number': l.WeekNumber,
+                        'lecture_number': l.LectureNumber,
+                    })
+                print(lectures_data)
             except:
                 lectures_data=['']
-            return jsonify({'lectures': lectures_data, 'courses': courses, 'code': 200})
+            return jsonify({'lectures': lectures_data, 'code': 200})
         except Exception as e:
             return jsonify({'error': str(e), 'code': 500})
 
@@ -270,11 +264,13 @@ class Lectures(Resource):
     def post(self):
         try:
             data = request.get_json()
-            course_id = data.get('course_id')
+            course_id = 1
             lecture_title = data.get('lecture_title')
             lecture_link = data.get('lecture_link')
             lecture_date = data.get('lecture_date')
             lecture_description = data.get('lecture_description')
+            week_number = data.get('week_number')
+            lecture_number = data.get('lecture_number')
 
             if not course_id or not lecture_title or not lecture_link or not lecture_date:
                 return jsonify({'error': 'Missing required fields', 'code': 400})
@@ -286,6 +282,8 @@ class Lectures(Resource):
                 LectureLink=lecture_link,
                 LectureDate=lecture_date,
                 Description=lecture_description,
+                WeekNumber=week_number,
+                LectureNumber=lecture_number,
                 CreatedAt=datetime.utcnow()
             )
             db.session.add(new_lecture)
@@ -304,6 +302,22 @@ class Lectures(Resource):
             })
         except Exception as e:
             db.session.rollback()  # Rollback in case of error
+            return jsonify({'error': str(e), 'code': 500})
+    
+    @jwt_required()
+    def delete(self, lecture_id):
+        try:
+            lecture = Lecture.query.get(lecture_id)
+            if not lecture:
+                return jsonify({'error': 'Lecture not found', 'code': 404})
+
+            db.session.delete(lecture)
+            db.session.commit()
+
+            return jsonify({'message': 'Lecture deleted successfully', 'code': 200})
+
+        except Exception as e:
+            db.session.rollback()
             return jsonify({'error': str(e), 'code': 500})
 
 
@@ -548,7 +562,6 @@ class ExecuteCode(Resource):
             # Execute the code and capture the output
             result = subprocess.run(['python3', temp_code_path], capture_output=True, text=True)
             output = result.stdout + result.stderr
-            print(output)
             # Remove the temporary file
             os.remove(temp_code_path)
 
@@ -571,7 +584,7 @@ api.add_resource(Profile, "/profile")
 api.add_resource(CourseDocuments, "/study/course_docs")
 api.add_resource(Practice, "/study/practice")
 api.add_resource(Graded, "/study/graded")
-api.add_resource(Lectures, "/study/lectures")
+api.add_resource(Lectures, "/study/lectures", "/study/lectures/<int:lecture_id>")
 api.add_resource(ExecuteCode, "/execute")
 # api.add_resource(Downloads, "/downloads")
 # api.add_resource(Forum, "/forum") not needed as am API

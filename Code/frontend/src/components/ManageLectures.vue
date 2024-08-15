@@ -1,73 +1,85 @@
 <template>
-    <div class="manage-lectures">
+    <div class="ManageLectures">
       <h1>Manage Lectures</h1>
-  
-      <!-- Display all lectures grouped by course -->
-      <div v-if="lectures.length > 0">
-        <div v-for="(lecturesList, index) in lectures" :key="index">
-          <h2>{{ lecturesList[0]?.course_name }}</h2>
-          <ul>
-            <li v-for="lecture in lecturesList" :key="lecture.lecture_id">
-              <strong>{{ lecture.lecture_title }}</strong><br>
-              Link: <a :href="lecture.lecture_link" target="_blank">{{ lecture.lecture_link }}</a><br>
-              Date: {{ formatDate(lecture.lecture_date) }}<br>
-              Description: {{ lecture.description }}
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div v-else>
-        <p>No lectures found.</p>
-      </div>
-  
-      <!-- Form to add a new lecture -->
-      <h2>Add New Lecture</h2>
+    
+      <!-- Add Lecture Form -->
+      <h2>Add a New Lecture</h2>
       <form @submit.prevent="addLecture">
         <div>
-          <label for="course">Select Course:</label>
-          <select v-model="newLecture.CourseID" required>
-            <option v-for="course in courses" :key="course.CourseID" :value="course.CourseID">
-              {{ course.CourseName }}
-            </option>
-          </select>
+          <label for="lectureTitle">Lecture Title:</label>
+          <input type="text" id="lectureTitle" v-model="newLecture.lecture_title" required />
         </div>
         <div>
-          <label for="title">Lecture Title:</label>
-          <input v-model="newLecture.lecture_title" type="text" required />
+          <label for="lectureWeek">Week Number:</label>
+          <input type="number" id="lectureWeek" v-model="newLecture.week_number" required />
         </div>
         <div>
-          <label for="link">Lecture Link:</label>
-          <input v-model="newLecture.lecture_link" type="text" required />
+          <label for="lectureLecture">Lecture Number:</label>
+          <input type="number" id="lectureLecture" v-model="newLecture.lecture_number" required />
         </div>
         <div>
-          <label for="date">Lecture Date:</label>
-          <input v-model="newLecture.lecture_date" type="date" required />
+          <label for="lectureLink">Lecture Link:</label>
+          <input type="url" id="lectureLink" v-model="newLecture.lecture_link" required />
         </div>
+  
         <div>
-          <label for="description">Description:</label>
-          <textarea v-model="newLecture.lecture_description"></textarea>
+          <label for="lectureDate">Lecture Date:</label>
+          <input type="date" id="lectureDate" v-model="newLecture.lecture_date" required />
         </div>
+  
+        <div>
+          <label for="lectureDescription">Description:</label>
+          <textarea id="lectureDescription" v-model="newLecture.lecture_description" required></textarea>
+        </div>
+  
         <button type="submit">Add Lecture</button>
       </form>
+      <br>
+      <!-- List of Lectures -->
+      <div v-if="lectures.length">
+        <h2>All Lectures</h2>
+        <ul>
+          <li v-for="lecture in lectures" :key="lecture.lecture_id">
+            <div v-if="isValidVideoLink(lecture.lecture_link)">
+              <iframe
+                :src="formatVideoLink(lecture.lecture_link)"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                width="560"
+                height="315"
+              ></iframe>
+            </div>
+            <br>
+            <strong>{{ lecture.lecture_title }}</strong>
+            <p>{{ lecture.description }}</p>
+            <small>Date: {{ formatDate(lecture.lecture_date) }}</small>
+            <br>
+            <button style="margin-top: 1%;" @click="deleteLecture(lecture.lecture_id)">Delete</button>
+          </li>
+        </ul>
+      </div>
+      <div v-else>
+        <p>No lectures available.</p>
+      </div>
+  
     </div>
   </template>
   
   <script>
-  import axios from 'axios';
-  
   export default {
-    name: 'ManageLectures',
+    name: "ManageLectures",
     data() {
       return {
-        lectures: [], // Array of arrays, each containing lectures for a specific course
-        courses: [],
+        lectures: [], // Array to hold the list of lectures
         newLecture: {
-          course_id: null,
-          lecture_title: '',
-          lecture_link: '',
-          lecture_date: '',
-          lecture_description: ''
-        }
+          lecture_title: "",
+          lecture_link: "",
+          lecture_date: "",
+          lecture_description: "",
+          week_number: "",
+          lecture_number: "",
+        },
       };
     },
     async created() {
@@ -76,70 +88,85 @@
     methods: {
       async fetchLectures() {
         try {
-          const response = await axios.get('http://127.0.0.1:2000/study/lectures', {
+          const response = await fetch("http://127.0.0.1:2000/study/lectures", {
+            method: "GET",
             headers: {
               "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
             },
           });
-          if (response.status === 200) {
-            const data = response.data;
-            this.lectures = this.groupLecturesByCourse(data.lectures);
-            this.courses = data.courses.map(course => ({
-              CourseID: course.CourseID,
-              CourseName: course.CourseName
-            }));
+          const data = await response.json();
+          if (response.ok) {
+            this.lectures = data.lectures || [];
           } else {
-            this.lectures = [];
-            this.courses = [];
+            alert(data.error || "Failed to fetch lectures");
           }
         } catch (error) {
-          console.error('Error fetching lectures:', error);
+          console.error("Error:", error);
+          alert("An error occurred while fetching lectures.");
         }
-      },
-      groupLecturesByCourse(lectures) {
-        return lectures.reduce((acc, lecture) => {
-          const courseIndex = acc.findIndex(group => group[0].course_id === lecture.course_id);
-          if (courseIndex === -1) {
-            acc.push([lecture]);
-          } else {
-            acc[courseIndex].push(lecture);
-          }
-          return acc;
-        }, []);
       },
       async addLecture() {
         try {
-          const lectureData = {
-            course_id: this.newLecture.course_id,
-            lecture_title: this.newLecture.lecture_title,
-            lecture_link: this.newLecture.lecture_link,
-            lecture_date: this.newLecture.lecture_date,
-            lecture_description: this.newLecture.lecture_description
-          };
-  
-          const response = await axios.post('http://127.0.0.1:2000/study/lectures', lectureData, {
+          const response = await fetch("http://127.0.0.1:2000/study/lectures", {
+            method: "POST",
             headers: {
               "Content-Type": "application/json",
               "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
             },
+            body: JSON.stringify(this.newLecture),
           });
-  
-          if (response.status === 201) {
-            alert('Lecture added successfully!');
-            this.newLecture = { course_id: null, lecture_title: '', lecture_link: '', lecture_date: '', lecture_description: '' };
-            await this.fetchLectures();
+          const data = await response.json();
+          if (response.ok) {
+            alert("Lecture added successfully!");
+            this.newLecture = {
+              lecture_title: "",
+              lecture_link: "",
+              lecture_date: "",
+              lecture_description: "",
+            };
+            await this.fetchLectures(); // Refresh the list after adding a new lecture
           } else {
-            alert('Error adding lecture:', response.data.error);
+            alert(data.error || "Failed to add lecture");
           }
         } catch (error) {
-          console.error('Error adding lecture:', error);
+          console.error("Error:", error);
+          alert("An error occurred while adding the lecture.");
         }
+      },
+      async deleteLecture(lectureId) {
+        try {
+            console.log(lectureId)
+          const response = await fetch(`http://127.0.0.1:2000/study/lectures/${lectureId}`, {
+            method: "DELETE",
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
+            },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            alert("Lecture deleted successfully!");
+            await this.fetchLectures(); // Refresh the list after deletion
+          } else {
+            alert(data.error || "Failed to delete lecture");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred while deleting the lecture.");
+        }
+      },
+      isValidVideoLink(link) {
+        const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+        return regex.test(link);
+      },
+      formatVideoLink(link) {
+        const videoId = link.split("v=")[1] || link.split("/").pop();
+        return `https://www.youtube.com/embed/${videoId}`;
       },
       formatDate(date) {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(date).toLocaleDateString(undefined, options);
-      }
-    }
+      },
+    },
   };
   </script>
   
@@ -152,10 +179,6 @@
     margin-bottom: 20px;
   }
   
-  h2 {
-    margin-top: 20px;
-  }
-  
   ul {
     list-style-type: none;
     padding: 0;
@@ -165,6 +188,11 @@
     background-color: #f5f5f5;
     margin-bottom: 15px;
     padding: 10px;
+    border-radius: 5px;
+  }
+  
+  iframe {
+    margin-top: 10px;
     border-radius: 5px;
   }
   
@@ -180,8 +208,7 @@
   }
   
   input,
-  textarea,
-  select {
+  textarea {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;

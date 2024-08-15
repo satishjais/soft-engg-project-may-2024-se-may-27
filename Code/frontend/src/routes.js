@@ -3,9 +3,11 @@ import RegistrationPage from "./components/RegistrationPage.vue";
 import DashboardPage from "./components/DashboardPage.vue";
 import HomePage from "./components/HomePage.vue";
 import DashboardAdmin from "./components/DashboardAdmin.vue";
-import ManageCourses from "./components/ManageCourses.vue";
+import ManageCourse from "./components/ManageCourse.vue";
 import ManageLectures from "./components/ManageLectures.vue";
 import IDE from "./components/IDE.vue";
+import CoursePage from "./components/PythonCourse.vue";
+
 import {
     createRouter,
     createWebHistory
@@ -44,8 +46,8 @@ const routes = [{
 
     {
         path: '/study',
-        name: 'ManageCourses',
-        component: ManageCourses,
+        name: 'ManageCourse',
+        component: ManageCourse,
         // meta: { requiresAuth: true },
         props: true
     },
@@ -63,6 +65,13 @@ const routes = [{
         name: 'IDE',
         component: IDE,
         // meta: { requiresAuth: true },
+        props: true
+    },
+
+    {
+        path: '/dashboard/4/python',
+        name: 'PythonModule',
+        component: CoursePage,
         props: true
     },
 
