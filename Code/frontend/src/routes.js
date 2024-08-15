@@ -5,6 +5,7 @@ import HomePage from "./components/HomePage.vue";
 import DashboardAdmin from "./components/DashboardAdmin.vue";
 import ManageCourses from "./components/ManageCourses.vue";
 import ManageLectures from "./components/ManageLectures.vue";
+import IDE from "./components/IDE.vue";
 import {
     createRouter,
     createWebHistory
@@ -53,6 +54,14 @@ const routes = [{
         path: '/study/lectures',
         name: 'ManageLectures',
         component: ManageLectures,
+        // meta: { requiresAuth: true },
+        props: true
+    },
+
+    {
+        path: '/ide',
+        name: 'IDE',
+        component: IDE,
         // meta: { requiresAuth: true },
         props: true
     },

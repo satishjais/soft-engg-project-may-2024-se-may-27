@@ -1,6 +1,7 @@
 import os
 from flask import request, jsonify, make_response, send_file
 from flask_restful import Resource
+import subprocess
 from application.models import User, Course, Assignment, Announcement, Lecture, CourseDocs
 from application import db, api, app
 from flask_bcrypt import Bcrypt
@@ -529,6 +530,34 @@ class DashboardAdmin(Resource):
 
         except Exception as e:
             return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
+        
+
+class ExecuteCode(Resource):
+    def post(self):
+        try:
+            # Get the code from the request
+            data = request.get_json()
+            code = data.get('code', '')
+
+            # Define the temporary file path
+            temp_code_path = "temp_code.py"
+
+            # Write the code to the temporary file
+            with open(temp_code_path, "w") as f:
+                f.write(code)
+            # Execute the code and capture the output
+            result = subprocess.run(['python3', temp_code_path], capture_output=True, text=True)
+            output = result.stdout + result.stderr
+            print(output)
+            # Remove the temporary file
+            os.remove(temp_code_path)
+
+            # Return the output
+            return jsonify({'output': output, 'code': 200})
+
+        except Exception as e:
+            # Return the error message
+            return jsonify({'error': str(e), 'code': 500})
 
 
 
@@ -543,6 +572,7 @@ api.add_resource(CourseDocuments, "/study/course_docs")
 api.add_resource(Practice, "/study/practice")
 api.add_resource(Graded, "/study/graded")
 api.add_resource(Lectures, "/study/lectures")
+api.add_resource(ExecuteCode, "/execute")
 # api.add_resource(Downloads, "/downloads")
 # api.add_resource(Forum, "/forum") not needed as am API
 # api.add_resource(Deadlines, "/deadlines")
