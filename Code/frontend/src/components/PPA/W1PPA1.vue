@@ -1,7 +1,8 @@
 <template>
   <div class="div">
-    <h4>W1PPA1:</h4> Print the first 5 positive integers in ascending order with one number in
-    each line Note: Do not worry about \n that comes at the end of the output.
+    <h4>W1PPA1:</h4>
+    Print the first 5 positive integers in ascending order with one number in
+    each line. Note: Do not worry about \n that comes at the end of the output.
   </div>
   <div class="container">
     <div class="editor-container">
@@ -9,7 +10,21 @@
     </div>
     <div class="output-container">
       <button @click="submitCode" class="run-button">Run Code</button>
-      <pre class="output">{{ formattedOutput }}</pre>
+      <!-- <pre class="output-container">{{ formattedOutput }}</pre> -->
+      <div v-if="testResults.length">
+        <h4>Test Results:</h4>
+        <ul>
+          <li v-for="(result, index) in testResults" :key="index">
+            <strong>Test Case {{ index + 1 }}:</strong>
+            <p>Input: {{ result.input }}</p>
+            <p>Expected Output: <br>{{ result.expected_output }}</p>
+            <p>Actual Output: <br>{{ result.actual_output }}</p>
+            <p :style="{ color: result.passed ? 'green' : 'red' }">
+              {{ result.passed ? 'Passed' : 'Failed' }}
+            </p>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -25,6 +40,7 @@ export default {
     return {
       editor: null,
       output: "",
+      testResults: [],
     };
   },
   mounted() {
@@ -32,36 +48,42 @@ export default {
     this.editor.setTheme("ace/theme/monokai");
     this.editor.session.setMode("ace/mode/python");
     this.editor.setOptions({
-      // fontFamily: "monospace",
       fontSize: "20pt",
     });
   },
   computed: {
     formattedOutput() {
-      // Preserve formatting with HTML entities
+      if (!this.output) return "";  // Return empty string if output is undefined or empty
       return this.output
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/\n/g, "\n") // Ensure new lines are preserved
-        .replace(/ /g, " "); // Preserve spaces
+        .replace(/\n/g, "\n")
+        .replace(/ /g, " ");
     },
   },
   methods: {
     async submitCode() {
       const code = this.editor.getValue();
+      const testCases = [
+        { input: '', expected_output: '1\n2\n3\n4\n5' },
+        // Add more test cases here
+      ];
+
       try {
         const response = await fetch("http://localhost:2000/execute", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ code }),
+          body: JSON.stringify({ code, test_cases: testCases }),
         });
         const result = await response.json();
-        this.output = result.output;
+        this.output = result.output || ""; // Ensure output is always a string
+        this.testResults = result.test_results || []; // Ensure testResults is always an array
       } catch (error) {
         console.error("Error:", error);
         this.output = "Error executing code";
+        this.testResults = [];
       }
     },
   },
@@ -85,9 +107,20 @@ export default {
   height: calc(100vh - 60px); /* Adjust based on button height */
   width: 100%;
   border: 1px solid #ddd;
-  /*font-size: 22px;*/
   font-family: "Courier New", monospace;
   border-radius: 15px;
+}
+
+.run-button {
+  align-self: flex-start;
+  margin-bottom: 10px;
+  width: 265px;
+  background-color: rgb(6, 150, 14);
+  color: white;
+  font-size: 16px;
+  border-radius: 15px;
+  border-color: white;
+  padding: 5px;
 }
 
 .output-container {
@@ -96,23 +129,6 @@ export default {
   display: flex;
   flex-direction: column;
   border-radius: 20px;
-}
-
-.run-button {
-    align-self: flex-start;
-    margin-bottom: 10px;
-    width: 290px;
-    background-color:rgb(6, 150, 14);
-    color: white;
-    font-size: 16px;
-    border-radius: 15px;
-    border-color: white;
-    padding: 5px;
-
-
-}
-
-.output {
   border: 1px solid #ddd;
   padding: 10px;
   background-color: #f5f5f5;

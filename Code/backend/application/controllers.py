@@ -546,12 +546,18 @@ class DashboardAdmin(Resource):
             return jsonify({'error': 'Something went wrong', 'code': 500, 'message': str(e)})
         
 
+import os
+import subprocess
+from flask import request, jsonify
+from flask_restful import Resource
+
 class ExecuteCode(Resource):
     def post(self):
         try:
-            # Get the code from the request
+            # Get the code and test cases from the request
             data = request.get_json()
             code = data.get('code', '')
+            test_cases = data.get('test_cases', [])
 
             # Define the temporary file path
             temp_code_path = "temp_code.py"
@@ -559,19 +565,39 @@ class ExecuteCode(Resource):
             # Write the code to the temporary file
             with open(temp_code_path, "w") as f:
                 f.write(code)
-            # Execute the code and capture the output
-            result = subprocess.run(['python3', temp_code_path], capture_output=True, text=True)
-            output = result.stdout + result.stderr
+
+            test_results = []
+            for test_case in test_cases:
+                input_data = test_case.get('input', '')
+                expected_output = test_case.get('expected_output', '').strip()
+
+                # Execute the code with input and capture the output
+                process = subprocess.Popen(['python3', temp_code_path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                out, err = process.communicate(input=input_data)
+
+                # Combine stdout and stderr
+                actual_output = out.strip() + err.strip()
+
+                # Check if the actual output matches the expected output
+                passed = actual_output == expected_output
+
+                # Store the result for this test case
+                test_results.append({
+                    'input': input_data,
+                    'expected_output': expected_output,
+                    'actual_output': actual_output,
+                    'passed': passed
+                })
+
             # Remove the temporary file
             os.remove(temp_code_path)
 
-            # Return the output
-            return jsonify({'output': output, 'code': 200})
+            # Return the test results along with the code output
+            return jsonify({'test_results': test_results, 'code': 200})
 
         except Exception as e:
             # Return the error message
             return jsonify({'error': str(e), 'code': 500})
-
 
 
 api.add_resource(Home, "/")
