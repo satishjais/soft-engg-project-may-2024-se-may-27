@@ -1,4 +1,8 @@
 <template>
+  <div class="div">
+    <h4>W1PPA1:</h4> Print the first 5 positive integers in ascending order with one number in
+    each line Note: Do not worry about \n that comes at the end of the output.
+  </div>
   <div class="container">
     <div class="editor-container">
       <div id="editor"></div>
@@ -16,7 +20,7 @@ import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/mode-python";
 
 export default {
-  name: "IDEComp",
+  name: "W1PPA1",
   data() {
     return {
       editor: null,
@@ -83,7 +87,7 @@ export default {
   border: 1px solid #ddd;
   /*font-size: 22px;*/
   font-family: "Courier New", monospace;
-  
+  border-radius: 15px;
 }
 
 .output-container {
@@ -91,11 +95,21 @@ export default {
   margin-left: 20px;
   display: flex;
   flex-direction: column;
+  border-radius: 20px;
 }
 
 .run-button {
-  align-self: flex-start;
-  margin-bottom: 10px;
+    align-self: flex-start;
+    margin-bottom: 10px;
+    width: 290px;
+    background-color:rgb(6, 150, 14);
+    color: white;
+    font-size: 16px;
+    border-radius: 15px;
+    border-color: white;
+    padding: 5px;
+
+
 }
 
 .output {
@@ -108,5 +122,6 @@ export default {
   white-space: pre; /* Preserve whitespace and formatting */
   text-align: left; /* Ensure left alignment */
   margin: 0; /* Remove default margins */
+  border-radius: 15px;
 }
 </style>

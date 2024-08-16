@@ -7,6 +7,7 @@ import ManageCourse from "./components/ManageCourse.vue";
 import ManageLectures from "./components/ManageLectures.vue";
 import IDE from "./components/IDE.vue";
 import CoursePage from "./components/PythonCourse.vue";
+import PracticeAssignment from "./components/PracticeAssignment.vue";
 
 import {
     createRouter,
@@ -72,6 +73,13 @@ const routes = [{
         path: '/dashboard/4/python',
         name: 'PythonModule',
         component: CoursePage,
+        props: true
+    },
+
+    {
+        path: '/dashboard/pa',
+        name: 'PracticeAssignment',
+        component: PracticeAssignment,
         props: true
     },
 
