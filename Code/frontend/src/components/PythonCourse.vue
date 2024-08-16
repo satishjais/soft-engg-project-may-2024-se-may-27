@@ -4,7 +4,6 @@
       <div class="main-container">
         <div class="content-wrapper">
           <CourseSidebar :activeSection="activeSection" :setActiveSection="setActiveSection" />
-          
           <main class="content">
             <div v-if="activeSection === 'aboutCourse'">
               <CourseIntroduction />
