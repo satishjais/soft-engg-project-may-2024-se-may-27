@@ -1,175 +1,66 @@
-<template>
-    <div>
-      <div>
-        <br>
-        <h1>Welcome to WonCourse</h1>  
-        <h3>The Ultimate Classroom for 1 Course</h3>
-      </div>  
-      <br>
-      <div class="button-container">
-          <button @click="goToLogin" class="button">
-          <span class="button_lg">
-            <span class="button_sl"></span>
-            <span class="button_text">Login Now</span>
-          </span>
+<template> 
+  <div class="container-fluid bodyplacer">
+    <div class="centred-item text-center">
+      <h1 class="display-1 fw-bold">Welcome to <h1 class="display-1 font-monospace">WonCourse</h1></h1>
+      <br />
+      <h4 class="fst-italic">The Ultimate Classroom for One Course</h4>
+      <br />
+      <div class="mt-4">
+        <button class="btn btn-primary btn-lg mx-3" @click="goToLogin">
+          Login
         </button>
-        <button class="button" @click="goToRegister" >
-          <span class="button_lg">
-            <span class="button_sl"></span>
-            <span class="button_text">Register Now</span>
-          </span>
+        <button class="btn btn-primary btn-lg mx-3" @click="goToRegister">
+          Register
         </button>
       </div>
     </div>
-  </template>
-  
-
-
-
+  </div>
+</template>
 
 <script>
-// import axios from 'axios';
 export default {
   name: 'HomePage',
-  data() {
-  },
   methods: {
     goToRegister() {
-      this.$router.push('/register');  // Replace '/register' with the desired route
+      this.$router.push('/register');
     },
     goToLogin() {
-      this.$router.push('/login');  // Replace '/another-page' with the desired route
+      this.$router.push('/login');
     }
   }
 }
-  </script>
+</script>
 
-  <style>
-/* From Uiverse.io by mrhyddenn */ 
+<style scoped>
+.centred-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  background-color: #ffffff1e;
+  max-width: 600px;
+}
+
+@media (max-width: 768px) {
+  .centred-item {
+    width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  .centred-item {
+    width: 100%;
+  }
+}
+
+.btn-close {
+  position: right;
+}
 .button-container {
   display: flex;
   justify-content: center;
-  gap: 20px; /* Adjust the gap between buttons */
-  margin-top: 20px; /* Optional: Adds space above the buttons */
+  gap: 15px; /* Adjust the gap between buttons */
+  margin-top: 20px;
 }
-
-.button {
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  appearance: none;
-  border: none;
-  background: none;
-  color: #0f1923;
-  cursor: pointer;
-  position: relative;
-  padding: 8px;
-  margin-bottom: 20px;
-  text-transform: uppercase;
-  font-weight: bold;
-  font-size: 14px;
-  transition: all .15s ease;
-}
-
-.button::before,
-.button::after {
-  content: '';
-  display: block;
-  position: absolute;
-  right: 0;
-  left: 0;
-  height: calc(50% - 5px);
-  border: 1px solid #7D8082;
-  transition: all .15s ease;
-}
-
-.button::before {
-  top: 0;
-  border-bottom-width: 0;
-}
-
-.button::after {
-  bottom: 0;
-  border-top-width: 0;
-}
-
-.button:active,
-.button:focus {
-  outline: none;
-}
-
-.button:active::before,
-.button:active::after {
-  right: 3px;
-  left: 3px;
-}
-
-.button:active::before {
-  top: 3px;
-}
-
-.button:active::after {
-  bottom: 3px;
-}
-
-.button_lg {
-  position: relative;
-  display: block;
-  padding: 10px 20px;
-  color: #fff;
-  background-color: #0f1923;
-  overflow: hidden;
-  box-shadow: inset 0px 0px 0px 1px transparent;
-}
-
-.button_lg::before {
-  content: '';
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2px;
-  height: 2px;
-  background-color: #0f1923;
-}
-
-.button_lg::after {
-  content: '';
-  display: block;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 4px;
-  height: 4px;
-  background-color: #0f1923;
-  transition: all .2s ease;
-}
-
-.button_sl {
-  display: block;
-  position: absolute;
-  top: 0;
-  bottom: -1px;
-  left: -8px;
-  width: 0;
-  background-color: #ff4655;
-  transform: skew(-15deg);
-  transition: all .2s ease;
-}
-
-.button_text {
-  position: relative;
-}
-
-.button:hover {
-  color: #0f1923;
-}
-
-.button:hover .button_sl {
-  width: calc(100% + 15px);
-}
-
-.button:hover .button_lg::after {
-  background-color: #fff;
-}
-
-  </style>
+</style>

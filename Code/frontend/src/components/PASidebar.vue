@@ -34,11 +34,9 @@
         </h2>
         <ul ref="week1" class="collapse-content">
           <li>
-              <a href="#" @click.prevent="setActiveSection('IDEComp')" :class="{ active: isActiveSection('IDEComp') }">PPA 1 - Non Graded</a>
-              <a href="#" @click.prevent="setActiveSection('W1L2Content')" :class="{ active: isActiveSection('W1L2Content') }">L1.2</a>
-              <a href="#" @click.prevent="setActiveSection('W1L3Content')" :class="{ active: isActiveSection('W1L3Content') }">L1.3</a>
-              <a href="#" @click.prevent="setActiveSection('W1L4Content')" :class="{ active: isActiveSection('W1L4Content') }">L1.4</a>
-              <a href="#" @click.prevent="setActiveSection('W1L5Content')" :class="{ active: isActiveSection('W1L5Content') }">L1.5</a>
+              <a href="#" @click.prevent="setActiveSection('IDEComp')" :class="{ active: isActiveSection('IDEComp') }">PPA 1.1 - Non Graded</a>
+              <a href="#" @click.prevent="setActiveSection('IDEComp1')" :class="{ active: isActiveSection('IDEComp1') }">PPA 1.2 - Non Graded</a>
+              <a href="#" @click.prevent="setActiveSection('IDEComp2')" :class="{ active: isActiveSection('IDEComp2') }">PPA 1.3 - Non Graded</a>
           </li>
         </ul>
       </div>
@@ -53,11 +51,9 @@
         </h2>
         <ul ref="week2" class="collapse-content">
           <li>
-            <a href="#" @click.prevent="setActiveSection('W2L1Content')" :class="{ active: isActiveSection('W2L1Content') }">L2.1</a>
-            <a href="#" @click.prevent="setActiveSection('W2L2Content')" :class="{ active: isActiveSection('W2L2Content') }">L2.2</a>
-            <a href="#" @click.prevent="setActiveSection('W2L3Content')" :class="{ active: isActiveSection('W2L3Content') }">L2.3</a>
-            <a href="#" @click.prevent="setActiveSection('W2L4Content')" :class="{ active: isActiveSection('W2L4Content') }">L2.4</a>
-            <a href="#" @click.prevent="setActiveSection('W2L5Content')" :class="{ active: isActiveSection('W2L5Content') }">L2.5</a>
+              <a href="#" @click.prevent="setActiveSection('IDEComp20')" :class="{ active: isActiveSection('IDEComp20') }">PPA 2.1 - Non Graded</a>
+              <a href="#" @click.prevent="setActiveSection('IDEComp21')" :class="{ active: isActiveSection('IDEComp21') }">PPA 2.2 - Non Graded</a>
+              <a href="#" @click.prevent="setActiveSection('IDEComp22')" :class="{ active: isActiveSection('IDEComp22') }">PPA 2.3 - Non Graded</a>
           </li>
         </ul>
       </div>
@@ -72,11 +68,9 @@
         </h2>
         <ul ref="week3" class="collapse-content">
           <li>
-            <a href="#" @click.prevent="setActiveSection('W3L1Content')" :class="{ active: isActiveSection('W3L1Content') }">L3.1</a>
-            <a href="#" @click.prevent="setActiveSection('W3L2Content')" :class="{ active: isActiveSection('W3L2Content') }">L3.2</a>
-            <a href="#" @click.prevent="setActiveSection('W3L3Content')" :class="{ active: isActiveSection('W3L3Content') }">L3.3</a>
-            <a href="#" @click.prevent="setActiveSection('W3L4Content')" :class="{ active: isActiveSection('W3L4Content') }">L3.4</a>
-            <a href="#" @click.prevent="setActiveSection('W3L5Content')" :class="{ active: isActiveSection('W3L5Content') }">L3.5</a>
+              <a href="#" @click.prevent="setActiveSection('IDEComp3')" :class="{ active: isActiveSection('IDEComp3') }">PPA 3.1 - Non Graded</a>
+              <a href="#" @click.prevent="setActiveSection('IDEComp31')" :class="{ active: isActiveSection('IDEComp31') }">PPA 3.2 - Non Graded</a>
+              <a href="#" @click.prevent="setActiveSection('IDEComp32')" :class="{ active: isActiveSection('IDEComp32') }">PPA 3.3 - Non Graded</a>
           </li>
         </ul>
       </div>
@@ -91,11 +85,24 @@
         </h2>
         <ul ref="week4" class="collapse-content">
           <li>
-            <a href="#" @click.prevent="setActiveSection('W4L1Content')" :class="{ active: isActiveSection('W4L1Content') }">L4.1</a>
-            <a href="#" @click.prevent="setActiveSection('W4L2Content')" :class="{ active: isActiveSection('W4L2Content') }">L4.2</a>
-            <a href="#" @click.prevent="setActiveSection('W4L3Content')" :class="{ active: isActiveSection('W4L3Content') }">L4.3</a>
-            <a href="#" @click.prevent="setActiveSection('W4L4Content')" :class="{ active: isActiveSection('W4L4Content') }">L4.4</a>
-            <a href="#" @click.prevent="setActiveSection('W4L5Content')" :class="{ active: isActiveSection('W4L5Content') }">L4.5</a>
+              <a href="#" @click.prevent="setActiveSection('IDEComp4')" :class="{ active: isActiveSection('IDEComp4') }">PPA 4.1 - Non Graded</a>
+              <a href="#" @click.prevent="setActiveSection('IDEComp41')" :class="{ active: isActiveSection('IDEComp41') }">PPA 4.2 - Non Graded</a>
+              <a href="#" @click.prevent="setActiveSection('IDEComp42')" :class="{ active: isActiveSection('IDEComp42') }">PPA 4.3 - Non Graded</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Course Content -->
+      <div class="sidebar-item" :class="{ open: isOpen('Study Content') }">
+        <h2 @click="toggleSection('Study Content')">
+          Study
+          <span class="toggle-icon">{{
+            isOpen("Study Content") ? "▼" : "▶"
+          }}</span>
+        </h2>
+        <ul ref="Study Content" class="collapse-content">
+          <li>
+            <router-link to="/dashboard">Course Content</router-link>
           </li>
         </ul>
       </div>
@@ -109,8 +116,8 @@
     data() {
       return {
         openSections: {
-          courseIntroduction: true,
-          week1: false,
+          courseIntroduction: false,
+          week1: true,
           week2: false,
         },
       };

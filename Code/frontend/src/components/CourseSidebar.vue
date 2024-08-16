@@ -99,6 +99,21 @@
           </li>
         </ul>
       </div>
+
+      <!-- Practice -->
+      <div class="sidebar-item" :class="{ open: isOpen('practice') }">
+        <h2 @click="toggleSection('practice')">
+          Practice
+          <span class="toggle-icon">{{
+            isOpen("practice") ? "▼" : "▶"
+          }}</span>
+        </h2>
+        <ul ref="practice" class="collapse-content">
+          <li>
+            <router-link to="/dashboard/pa">Programming</router-link>
+          </li>
+        </ul>
+      </div>
     </aside>
   </template>
   

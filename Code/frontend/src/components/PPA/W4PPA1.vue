@@ -1,8 +1,7 @@
 <template>
   <div class="div">
-    <h4>W1PPA1:</h4>
-    Print the first 5 positive integers in ascending order with one number in
-    each line.
+    <h4>W4PPA1:</h4>
+    Input string and tell if it's digit or not.
   </div>
   <div class="container">
     <div class="editor-container">
@@ -34,7 +33,7 @@ import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/mode-python";
 
 export default {
-  name: "W1PPA1",
+  name: "W4PPA1",
   data() {
     return {
       editor: null,
@@ -59,7 +58,8 @@ export default {
     async submitCode() {
       const code = this.editor.getValue();
       const testCases = [
-        { input: '', expected_output: '1\n2\n3\n4\n5' },
+        { input: "My name is Jeff", expected_output: 'False' },
+        { input: '5', expected_output: 'True' },
         // Add more test cases here
       ];
 

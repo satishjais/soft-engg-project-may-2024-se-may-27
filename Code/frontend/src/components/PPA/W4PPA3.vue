@@ -1,8 +1,7 @@
 <template>
   <div class="div">
-    <h4>W1PPA1:</h4>
-    Print the first 5 positive integers in ascending order with one number in
-    each line.
+    <h4>W4PPA3:</h4>
+    Input age and print yes if it is above 18.
   </div>
   <div class="container">
     <div class="editor-container">
@@ -34,7 +33,7 @@ import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/mode-python";
 
 export default {
-  name: "W1PPA1",
+  name: "W4PPA3",
   data() {
     return {
       editor: null,
@@ -59,7 +58,9 @@ export default {
     async submitCode() {
       const code = this.editor.getValue();
       const testCases = [
-        { input: '', expected_output: '1\n2\n3\n4\n5' },
+        { input: '19', expected_output: 'yes' },
+        { input: '15', expected_output: 'no' },
+        { input: '18', expected_output: 'no' },
         // Add more test cases here
       ];
 

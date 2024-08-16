@@ -1,8 +1,7 @@
 <template>
   <div class="div">
-    <h4>W1PPA1:</h4>
-    Print the first 5 positive integers in ascending order with one number in
-    each line.
+    <h4>W1PPA2:</h4>
+    Print the first 5 alphabets in ascending order with one number in each line.
   </div>
   <div class="container">
     <div class="editor-container">
@@ -34,7 +33,7 @@ import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/mode-python";
 
 export default {
-  name: "W1PPA1",
+  name: "W1PPA2",
   data() {
     return {
       editor: null,
@@ -59,7 +58,7 @@ export default {
     async submitCode() {
       const code = this.editor.getValue();
       const testCases = [
-        { input: '', expected_output: '1\n2\n3\n4\n5' },
+        { input: '', expected_output: 'a\nb\nc\nd\ne' },
         // Add more test cases here
       ];
 

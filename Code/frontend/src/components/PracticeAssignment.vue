@@ -6,85 +6,42 @@
           <PASidebar :activeSection="activeSection" :setActiveSection="setActiveSection" />
           
           <main class="content">
-            <!-- <div v-if="activeSection === 'aboutCourse'">
-              <CourseIntroduction />
-            </div>
-            <div v-if="activeSection === 'learningStrategy'">
-              <h2>Learning Strategy</h2>
-              <p>Details about the learning strategy go here...</p>
-            </div>
-            <div v-if="activeSection === 'submitAssignment'">
-              <h2>How to submit a programming assignment</h2>
-              <p>Instructions on how to submit a programming assignment go here...</p>
-            </div>
-            <div v-if="activeSection === 'generalInstructions'">
-              <h2>General Instructions</h2>
-              <p>General instructions for the course go here...</p>
-            </div> -->
-            <!-- <div v-if="activeSection === 'W1L1Content'">
-              <W1L1Content />
-            </div>
-            <div v-if="activeSection === 'W1L2Content'">
-              <W1L2Content />
-            </div>
-            <div v-if="activeSection === 'W1L3Content'">
-              <W1L3Content />
-            </div>
-            <div v-if="activeSection === 'W1L4Content'">
-              <W1L4Content />
-            </div>
-            <div v-if="activeSection === 'W1L5Content'">
-              <W1L5Content />
-            </div>
-            <div v-if="activeSection === 'W2L1Content'">
-              <W2L1Content />
-            </div>
-            <div v-if="activeSection === 'W2L2Content'">
-              <W2L2Content />
-            </div>
-            <div v-if="activeSection === 'W2L3Content'">
-              <W2L3Content />
-            </div>
-            <div v-if="activeSection === 'W2L4Content'">
-              <W2L4Content />
-            </div>
-            <div v-if="activeSection === 'W2L5Content'">
-              <W2L5Content />
-            </div>
-            <div v-if="activeSection === 'W3L1Content'">
-              <W3L1Content />
-            </div>
-            <div v-if="activeSection === 'W3L2Content'">
-              <W3L2Content />
-            </div>
-            <div v-if="activeSection === 'W3L3Content'">
-              <W3L3Content />
-            </div>
-            <div v-if="activeSection === 'W3L4Content'">
-              <W3L4Content />
-            </div>
-            <div v-if="activeSection === 'W3L5Content'">
-              <W3L5Content />
-            </div>
-            <div v-if="activeSection === 'W4L1Content'">
-              <W4L1Content />
-            </div>
-            <div v-if="activeSection === 'W4L2Content'">
-              <W4L2Content />
-            </div>
-            <div v-if="activeSection === 'W4L3Content'">
-              <W4L3Content />
-            </div>
-            <div v-if="activeSection === 'W4L4Content'">
-              <W4L4Content />
-            </div>
-            <div v-if="activeSection === 'W4L5Content'">
-              <W4L5Content />
-            </div> -->
             <div v-if="activeSection === 'IDEComp'">
               <W1PPA1 />
             </div>
-            
+            <div v-if="activeSection === 'IDEComp1'">
+              <W1PPA2 />
+            </div>
+            <div v-if="activeSection === 'IDEComp2'">
+              <W1PPA3 />
+            </div>
+            <div v-if="activeSection === 'IDEComp20'">
+              <W2PPA1 />
+            </div>
+            <div v-if="activeSection === 'IDEComp21'">
+              <W2PPA2 />
+            </div>
+            <div v-if="activeSection === 'IDEComp22'">
+              <W2PPA3 />
+            </div>
+            <div v-if="activeSection === 'IDEComp3'">
+              <W3PPA1 />
+            </div>
+            <div v-if="activeSection === 'IDEComp31'">
+              <W3PPA2 />
+            </div>
+            <div v-if="activeSection === 'IDEComp32'">
+              <W3PPA3 />
+            </div>
+            <div v-if="activeSection === 'IDEComp4'">
+              <W4PPA1 />
+            </div>
+            <div v-if="activeSection === 'IDEComp41'">
+              <W4PPA2 />
+            </div>
+            <div v-if="activeSection === 'IDEComp42'">
+              <W4PPA3 />
+            </div>
           </main>
         </div>
       </div> 
@@ -94,32 +51,19 @@
   
   <script>
   import HeaderFile from './HeaderFile.vue';
-//   import CourseSidebar from './CourseSidebar.vue';
   import PASidebar from './PASidebar.vue';
-//   import CourseIntroduction from './Week0/CourseIntroduction.vue';
-//   import W1L1Content from './Weeks/W1L1Content.vue';
-//   import W1L2Content from './Weeks/W1L2Content.vue';
-//   import W1L3Content from './Weeks/W1L3Content.vue';
-//   import W1L4Content from './Weeks/W1L4Content.vue';
-//   import W1L5Content from './Weeks/W1L5Content.vue';
-//   import W2L1Content from './Weeks/W2L1Content.vue';
-//   import W2L2Content from './Weeks/W2L2Content.vue';
-//   import W2L3Content from './Weeks/W2L3Content.vue';
-//   import W2L4Content from './Weeks/W2L4Content.vue';
-//   import W2L5Content from './Weeks/W2L5Content.vue';
-//   import W3L1Content from './Weeks/W3L1Content.vue';
-//   import W3L2Content from './Weeks/W3L2Content.vue';
-//   import W3L3Content from './Weeks/W3L3Content.vue';
-//   import W3L4Content from './Weeks/W3L4Content.vue';
-//   import W3L5Content from './Weeks/W3L5Content.vue';
-//   import W4L1Content from './Weeks/W4L1Content.vue';
-//   import W4L2Content from './Weeks/W4L2Content.vue';
-//   import W4L3Content from './Weeks/W4L3Content.vue';
-//   import W4L4Content from './Weeks/W4L4Content.vue';
-//   import W4L5Content from './Weeks/W4L5Content.vue';
-//   import IDEComp from './IDE.vue';
   import W1PPA1 from './PPA/W1PPA1.vue';
-
+  import W1PPA2 from './PPA/W1PPA2.vue';
+  import W1PPA3 from './PPA/W1PPA3.vue';
+  import W2PPA1 from './PPA/W2PPA1.vue';
+  import W2PPA2 from './PPA/W2PPA2.vue';
+  import W2PPA3 from './PPA/W2PPA3.vue';
+  import W3PPA1 from './PPA/W3PPA1.vue';
+  import W3PPA2 from './PPA/W3PPA2.vue';
+  import W3PPA3 from './PPA/W3PPA3.vue';
+  import W4PPA1 from './PPA/W4PPA1.vue';
+  import W4PPA2 from './PPA/W4PPA2.vue';
+  import W4PPA3 from './PPA/W4PPA3.vue';
   
   
   
@@ -127,35 +71,23 @@
   name: "PracticeAssignment",
   components: {
     HeaderFile,
-    // CourseSidebar,
-    // CourseIntroduction,
-    // W1L1Content,
-    // W1L2Content,
-    // W1L3Content,
-    // W1L4Content,
-    // W1L5Content,
-    // W2L1Content,
-    // W2L2Content,
-    // W2L3Content,
-    // W2L4Content,
-    // W2L5Content,
-    // W3L1Content,
-    // W3L2Content,
-    // W3L3Content,
-    // W3L4Content,
-    // W3L5Content,
-    // W4L1Content,
-    // W4L2Content,
-    // W4L3Content,
-    // W4L4Content,
-    // W4L5Content,
-    // IDEComp,
     W1PPA1,
+    W1PPA2,
+    W1PPA3,
+    W2PPA1,
+    W2PPA2,
+    W2PPA3,
+    W3PPA1,
+    W3PPA2,
+    W3PPA3,
+    W4PPA1,
+    W4PPA2,
+    W4PPA3,
     PASidebar
   },
   data() {
     return {
-      activeSection: 'aboutCourse',
+      activeSection: 'IDEComp',
     };
   },
   methods: {

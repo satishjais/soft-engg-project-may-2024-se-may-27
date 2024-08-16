@@ -1,8 +1,7 @@
 <template>
   <div class="div">
-    <h4>W1PPA1:</h4>
-    Print the first 5 positive integers in ascending order with one number in
-    each line.
+    <h4>W2PPA1:</h4>
+    Input 2 numbers and print their sum.
   </div>
   <div class="container">
     <div class="editor-container">
@@ -34,7 +33,7 @@ import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/mode-python";
 
 export default {
-  name: "W1PPA1",
+  name: "W2PPA1",
   data() {
     return {
       editor: null,
@@ -59,7 +58,8 @@ export default {
     async submitCode() {
       const code = this.editor.getValue();
       const testCases = [
-        { input: '', expected_output: '1\n2\n3\n4\n5' },
+        { input: '5\n6', expected_output: '11' },
+        { input: '-2\n9', expected_output: '7' },
         // Add more test cases here
       ];
 
