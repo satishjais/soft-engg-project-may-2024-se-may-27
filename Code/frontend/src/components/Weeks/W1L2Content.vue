@@ -1,6 +1,6 @@
 <template>
+  <h1>{{ dynamicName }}</h1>
   <div class="video-chat">
-    <h1>{{ dynamicName }}</h1>
     <div class="video-container" v-if="isValidVideoLink(lecture.lecture_link)">
       <iframe 
           width="853" 
@@ -12,14 +12,20 @@
           referrerpolicy="strict-origin-when-cross-origin"
           allowfullscreen>
       </iframe>
+    
     </div>
-    <p>{{ lecture.lecture_description }}</p>
-    <small>Date: {{ formatDate(lecture.lecture_date) }}</small>
+    <VChat/>
   </div>
+  <p>{{ lecture.lecture_description }}</p>
+  <small>Date: {{ formatDate(lecture.lecture_date) }}</small>
 </template>
 
 <script>
+import VChat from './VChat.vue'
 export default {
+  components: {
+    VChat,
+  },
   data() {
     return {
       lecture: {}, // Object to hold the lecture details

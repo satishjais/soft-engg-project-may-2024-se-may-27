@@ -1,43 +1,39 @@
 <template>
-  <h1>{{ dynamicName }}</h1>
-  <div class="video-chat">
-    <div class="video-container" v-if="isValidVideoLink(lecture.lecture_link)">
-      <iframe
-        width="853"
-        height="480"
-        :src="formatVideoLink(lecture.lecture_link)"
-        :title="lecture.lecture_title"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerpolicy="strict-origin-when-cross-origin"
-        allowfullscreen
-        >
-      </iframe>
-      </div>
-      <VChat />
+  <div class="chat-container">
+    <div class="chat-interface">
+        <textarea
+        v-model="userInput"
+        @keyup.enter="sendQuery"
+        placeholder="Ask a question about the video..."
+        ></textarea>
+        <div class="div">
+          <select v-model="currentTheme" @change="changeTheme" class="theme">
+            <option value="github">GitHub</option>
+            <option value="monokai-sublime">Monokai Sublime</option>
+            <option value="atom-one-dark">Atom One Dark</option>
+          </select>
+        </div>
+        <button @click="sendQuery" :disabled="isLoading">Send</button>
     </div>
-  <p>{{ lecture.lecture_description }}</p>
-  <small>Date: {{ formatDate(lecture.lecture_date) }}</small
-  >
-  
+    <div class="response" v-if="response">
+      <h4>Response:</h4>
+      <div v-html="formattedResponse"></div>
+    </div>
+    <div v-if="isLoading" class="loading">Loading...</div>
+    <div v-if="error" class="error">{{ error }}</div>
+  </div>
 
 </template>
 
 <script>
-// import axios from 'axios';
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
 import "highlight.js/styles/monokai-sublime.css";
 import "highlight.js/styles/atom-one-dark.css";
-import VChat from './VChat.vue'
 
 export default {
-  components:{
-    VChat,
-  },
   data() {
     return {
-      lecture: {}, // Object to hold the lecture details
       userInput: "",
       response: "",
       isLoading: false,
@@ -45,13 +41,8 @@ export default {
       currentTheme: "atom-one-dark",
     };
   },
-  async created() {
-    await this.fetchLecture();
-  },
+  
   computed: {
-    dynamicName() {
-      return `W${this.lecture.week_number}L${this.lecture.lecture_number}Content: ${this.lecture.lecture_title}`;
-    },
     formattedResponse() {
       if (!this.response) return "";
       return this.formatText(this.response);
@@ -134,43 +125,10 @@ export default {
       return line;
     },
 
-    async fetchLecture() {
-      try {
-        const response = await fetch("http://127.0.0.1:2000/study/lectures", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-        });
-        const data = await response.json();
-        console.log(data);
-        if (response.ok && data.lectures.length) {
-          // Assuming you want to display the first lecture for now
-          this.lecture = data.lectures[0];
-        } else {
-          alert(data.error || "Failed to fetch lecture details");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        alert("An error occurred while fetching lecture details.");
-      }
-    },
-    isValidVideoLink(link) {
-      const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
-      console.log(link);
-      return regex.test(link);
-    },
-    formatVideoLink(link) {
-      const videoId = link.split("v=")[1] || link.split("/").pop();
-      return `https://www.youtube.com/embed/${videoId}`;
-    },
-    formatDate(date) {
-      const options = { year: "numeric", month: "long", day: "numeric" };
-      return new Date(date).toLocaleDateString(undefined, options);
-    },
   },
 };
 </script>
+
 <style>
 .video-chat {
   display: flex;
@@ -191,6 +149,7 @@ export default {
 }
 
 .chat-container {
+
   width: 300px; /* Fixed width for the chat container */
   margin-left: 20px; /* Space between video and chat */
   overflow-y: auto;
@@ -222,7 +181,6 @@ export default {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
-
 
 .chat-interface {
   display: flex;
@@ -257,7 +215,6 @@ button:disabled {
 .response,
 .loading,
 .error {
-  
   margin-top: 0px;
   /* overflow-x: scroll; */
   overflow-y: scroll;
@@ -283,7 +240,8 @@ code {
 
 .theme {
   border-radius: 12px;
-  max-width: 400px;
-  margin-bottom: 2px;
+  max-width: 380px;
+  margin-bottom: 7px;
+  padding: 5px;
 }
 </style>
