@@ -8,6 +8,7 @@ import ManageLectures from "./components/ManageLectures.vue";
 import IDE from "./components/IDE.vue";
 import CoursePage from "./components/PythonCourse.vue";
 import PracticeAssignment from "./components/PracticeAssignment.vue";
+import ManageUsers from "./components/ManageUsers.vue";
 
 import {
     createRouter,
@@ -80,6 +81,13 @@ const routes = [{
         path: '/dashboard/pa',
         name: 'PracticeAssignment',
         component: PracticeAssignment,
+        props: true
+    },
+
+    {
+        path: '/user',
+        name: 'ManageUsers',
+        component: ManageUsers,
         props: true
     },
 

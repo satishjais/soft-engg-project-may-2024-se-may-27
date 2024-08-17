@@ -16,8 +16,6 @@
       <br>
       <input v-model="formData.confpass" type="password" class="form-control" placeholder="Confirm Password" required>
       <br>
-      <input v-model="formData.courses" type="text" class="form-control" placeholder="Courses">
-      <br>
       <input v-model="formData.mob" type="text" class="form-control" placeholder="Mobile" required>
       <br>
       <div align="center">
@@ -39,8 +37,7 @@ export default {
         confpass: '',
         email: '',
         mob: '',
-        name: '',
-        courses: '',
+        name: ''
       },
       error: null,
     };
@@ -58,7 +55,7 @@ export default {
 
         const data = await response.json();
 
-        if (response.status === 201) {
+        if (response.status === 200) {
           this.$router.push('/login');
           alert("Registration Successful");
         } else {
