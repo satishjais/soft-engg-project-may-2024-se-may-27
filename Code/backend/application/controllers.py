@@ -7,7 +7,7 @@ from application import db, api, app
 from flask_bcrypt import Bcrypt
 import datetime
 from flask import Flask, jsonify
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, unset_jwt_cookies
 from datetime import datetime
 
 bcrypt = Bcrypt()
@@ -397,6 +397,17 @@ class ExecuteCode(Resource):
             return jsonify({'error': str(e), 'code': 500})
 
 
+
+class Logout(Resource):
+    def post(self):
+        try:
+            response = jsonify({"message": "Successfully logged out", "code": 200})
+            unset_jwt_cookies(response)  # This will unset the JWT cookies
+            return response
+        except Exception as e:
+            return jsonify({"error": str(e), "code": 500})
+
+
 api.add_resource(Home, "/")
 api.add_resource(Login, "/login")
 api.add_resource(Register, "/register")
@@ -405,3 +416,4 @@ api.add_resource(DashboardAdmin, "/dashboard/admin")
 api.add_resource(Study, "/study", "/study/<int:course_id>")
 api.add_resource(Lectures, "/study/lectures", "/study/lectures/<int:lecture_id>")
 api.add_resource(ExecuteCode, "/execute")
+api.add_resource(Logout, "/logout")
