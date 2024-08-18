@@ -126,8 +126,10 @@ To run this application, you will need the following installed on your system:
 
 ## Contributors
 
-Dev Khatri (21f3001150)/n
-Satish Jaiswal (21f2000142)/n
+Dev Khatri (21f3001150)
+
+Satish Jaiswal (21f2000142)
+
 Prem Kumar (21f1000531)/n
 Srishti Singh (21f1006972)/n
 Shrikanth V (21f1002328)/n
