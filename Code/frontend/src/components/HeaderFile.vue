@@ -1,22 +1,10 @@
 <template>
   <header class="header">
     <h5>September 2024: Introduction to Programming in Python</h5>
-    <button @click="openAdminModal" class="logout-button">Support</button>
-    <button @click="logout" class="logout-button">Logout</button>
-
-    <!-- Gajaa - Admin Support -->
-    <div class="sidebar-item" :class="{ open: isOpen('adminbot') }">
-        <h2 @click="toggleSection('adminbot')">
-          Gajaa - Admin Support
-          <span class="toggle-icon">{{ isOpen("adminbot") ? "▼" : "▶" }}</span>
-        </h2>
-        <ul ref="adminbot" class="collapse-content">
-          <li>
-            <a href="#" @click.prevent="openAdminModal">Chat with Admin Support</a>
-          </li>
-        </ul>
-      </div>
-
+    <div class="button-container">
+      <button @click="openAdminModal" class="logout-button">Support</button>
+      <button @click="logout" class="logout-button">Logout</button>
+    </div>
     <!-- Admin Modal HTML -->
     <div
       class="modal fade"
@@ -65,6 +53,7 @@ import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
 import "highlight.js/styles/monokai-sublime.css";
 import "highlight.js/styles/atom-one-dark.css";
+
 export default {
   name: "HeaderFile",
   data() {
@@ -82,7 +71,6 @@ export default {
   },
   methods: {
     logout() {
-      // Make an API call to the logout endpoint
       fetch('http://127.0.0.1:2000/logout', {
         method: 'POST',
         headers: {
@@ -92,11 +80,10 @@ export default {
       })
       .then(response => response.json())
       .then(data => {
+        console.log("Working")
         if (data.code === 200) {
           console.log('Logout successful');
-          // Clear the token from localStorage
           localStorage.removeItem('token');
-          // Redirect to login page using Vue Router
           this.$router.push('/login');
         } else {
           alert('Logout failed: ' + data.message);
@@ -113,6 +100,8 @@ export default {
       this.adminResponse = "";
       this.adminInput = "";
 
+      await this.$nextTick(); // Ensure DOM is updated before manipulating
+
       const adminModalElement = document.getElementById("adminModal");
       if (adminModalElement) {
         const myModal = new Modal(adminModalElement, {
@@ -124,7 +113,6 @@ export default {
         myModal.show();
       }
     },
-
     async sendAdminQuery() {
       if (!this.adminInput.trim()) return;
       this.isAdminLoading = true;
@@ -149,7 +137,6 @@ export default {
       }
     },
     formatText(text) {
-      // Split the text into lines
       const lines = text.split("\n");
       let formattedText = "";
       let inCodeBlock = false;
@@ -159,23 +146,18 @@ export default {
       for (const line of lines) {
         if (line.startsWith("```")) {
           if (inCodeBlock) {
-            // End of code block
-            const highlightedCode = hljs.highlightAuto(codeBlockContent, [
-              language,
-            ]).value;
+            const highlightedCode = hljs.highlightAuto(codeBlockContent, [language]).value;
             formattedText += `<pre><code class="hljs ${language}">${highlightedCode}</code></pre>`;
             inCodeBlock = false;
             codeBlockContent = "";
             language = "";
           } else {
-            // Start of code block
             inCodeBlock = true;
-            language = line.slice(3).trim(); // Get the language specified after ```
+            language = line.slice(3).trim();
           }
         } else if (inCodeBlock) {
           codeBlockContent += line + "\n";
         } else {
-          // Regular text
           formattedText += this.formatLine(line) + "<br>";
         }
       }
@@ -183,10 +165,9 @@ export default {
       return formattedText;
     },
     formatLine(line) {
-      // Basic formatting for non-code text
-      line = line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"); // Bold
-      line = line.replace(/\*(.*?)\*/g, "<em>$1</em>"); // Italic
-      line = line.replace(/`(.*?)`/g, "<code>$1</code>"); // Inline code
+      line = line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+      line = line.replace(/\*(.*?)\*/g, "<em>$1</em>");
+      line = line.replace(/`(.*?)`/g, "<code>$1</code>");
       return line;
     },
   }
@@ -207,38 +188,44 @@ export default {
 .logout-button:hover {
   background-color: #bbb;
 }
+
 .hljs {
-    background: none;
-  }
+  background: none;
+}
 
+.admin-container textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
 
-  .admin-container textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .admin-container button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .admin-response {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #f1f1f1;
-    border-radius: 5px;
-  }
-  
-  .admin-loading {
-    color: gray;
-  }
-  
-  .admin-error {
-    color: red;
-  }
+.admin-container button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.admin-response {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+}
+
+.admin-loading {
+  color: gray;
+}
+
+.admin-error {
+  color: red;
+}
+
+.button-container {
+  display: flex;
+  gap: 10px; /* Adjust space between buttons */
+  margin-bottom: 15px; /* Adjust spacing below the button container */
+}
 </style>

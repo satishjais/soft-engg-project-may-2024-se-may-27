@@ -10,6 +10,7 @@
     "dependencies": {
         "ace-builds": "^1.35.4",
         "axios": "^1.7.3",
+        "bootstrap": "^5.3.3",
         "core-js": "^3.8.3",
         "vue": "^3.2.13",
         "vue-router": "^4.0.13"

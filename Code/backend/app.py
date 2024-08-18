@@ -11,7 +11,6 @@ videoChatbot = VideoChat()
 codeChatbot = CodeChat()
 SupportChatbot = SupportChat() 
 
-
 @app.route('/videochat', methods=['POST'])
 def chat():
    data = request.json

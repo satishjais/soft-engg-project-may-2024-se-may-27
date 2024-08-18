@@ -400,6 +400,7 @@ class ExecuteCode(Resource):
 
 class Logout(Resource):
     def post(self):
+        print("Logout request")
         try:
             response = jsonify({"message": "Successfully logged out", "code": 200})
             unset_jwt_cookies(response)  # This will unset the JWT cookies
