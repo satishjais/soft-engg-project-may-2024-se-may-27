@@ -132,5 +132,5 @@ Prem Kumar (21f1000531)/n
 Srishti Singh (21f1006972)/n
 Shrikanth V (21f1002328)/n
 Shrirang Sapate (21f1002870)/n
-Pranav R (21f1004199)/n
+Pranav R (21f1004199)\n
 Shristi Tiwari (21f2000589)
