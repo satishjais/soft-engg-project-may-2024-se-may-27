@@ -92,6 +92,71 @@
         </ul>
       </div>
 
+       <!-- Code Chatbot -->
+    <div class="sidebar-item" :class="{ open: isOpen('codingbot') }">
+      <h2 @click="toggleSection('codingbot')">
+        Gajaa - Your Coding Assistant
+        <span class="toggle-icon">{{ isOpen("codingbot") ? "▼" : "▶" }}</span>
+      </h2>
+      <ul ref="codingbot" class="collapse-content">
+        <li>
+          <a href="#" @click.prevent="openChatModal">Chat with Gajaa</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Code Modal HTML -->
+    <div
+      class="modal fade"
+      id="chatModal"
+      tabindex="-1"
+      aria-labelledby="chatModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="chatModalLabel">Gajaa - Your Coding Assistant</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="code-container">
+              <div class="code-interface">
+                <textarea
+                  v-model="userInput"
+                  @keyup.enter="sendQuery"
+                  placeholder="Ask a question about the video..."
+                ></textarea>
+                <div class="div">
+                  <select
+                    v-model="currentTheme"
+                    @change="changeTheme"
+                    class="code-theme"
+                  >
+                    <option value="github">GitHub</option>
+                    <option value="monokai-sublime">Monokai Sublime</option>
+                    <option value="atom-one-dark">Atom One Dark</option>
+                  </select>
+                </div>
+                <button @click="sendQuery" :disabled="isLoading">Send</button>
+              </div>
+              <div class="code-response" v-if="response">
+                <h4>Response:</h4>
+                <div v-html="formattedResponse"></div>
+              </div>
+              <div v-if="isLoading" class="code-loading">Loading...</div>
+              <div v-if="error" class="code-error">{{ error }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
       <!-- Course Content -->
       <div class="sidebar-item" :class="{ open: isOpen('Study Content') }">
         <h2 @click="toggleSection('Study Content')">
@@ -110,6 +175,12 @@
   </template>
   
   <script>
+  import { Modal } from "bootstrap";
+  import hljs from "highlight.js";
+  import "highlight.js/styles/github.css";
+  import "highlight.js/styles/monokai-sublime.css";
+  import "highlight.js/styles/atom-one-dark.css";
+
   export default {
     name: "PASidebar",
     props: ["activeSection", "setActiveSection"],
@@ -119,7 +190,14 @@
           courseIntroduction: false,
           week1: true,
           week2: false,
+          chatContent: "",
+          chatLoading: false,
         },
+        userInput: "",
+        response: "",
+        error: "",
+        isLoading: false,
+        currentTheme: "atom-one-dark",
       };
     },
     methods: {
@@ -144,6 +222,100 @@
       },
       isActiveSection(section) {
       return this.activeSection === section;
+    },
+    async openChatModal() {
+      this.chatLoading = true;
+      this.isLoading = false;  // Ensure loading is reset
+      this.error = null;       // Clear any previous errors
+      this.response = "";      // Clear previous responses
+      this.userInput = "";     // Clear user input
+
+      const chatModalElement = document.getElementById("chatModal");
+      if (chatModalElement) {
+        const myModal = new Modal(chatModalElement, {
+          backdrop: "static",
+          keyboard: false,
+          focus: true,
+          scrollable: true,
+        });
+        myModal.show();
+      }
+    },
+    async sendQuery() {
+      console.log("SEND BUTTON CLICKED!!");
+      if (!this.userInput.trim()) return;
+
+      this.isLoading = true;
+      this.error = null;
+      this.response = "";
+      console.log("this.input:", this.userInput);
+      try {
+        const result = await fetch("http://127.0.0.1:2000/codechat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: this.userInput,
+          }),
+        });
+        const data = await result.json();
+        console.log("RESULTS:", data);
+        this.response = data.response;
+        this.formattedResponse = this.formatText(this.response); // Format response text
+        console.log("this.response", this.response);
+        console.log("this.formattedResponse", this.formattedResponse);
+      } catch (error) {
+        console.error("Error:", error);
+        this.error = "An error occurred while fetching the response.";
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    changeTheme() {
+      document.body.className = this.currentTheme;
+    },
+
+    formatText(text) {
+      // Split the text into lines
+      const lines = text.split("\n");
+      let formattedText = "";
+      let inCodeBlock = false;
+      let codeBlockContent = "";
+      let language = "";
+
+      for (const line of lines) {
+        if (line.startsWith("```")) {
+          if (inCodeBlock) {
+            // End of code block
+            const highlightedCode = hljs.highlightAuto(codeBlockContent, [
+              language,
+            ]).value;
+            formattedText += `<pre><code class="hljs ${language}">${highlightedCode}</code></pre>`;
+            inCodeBlock = false;
+            codeBlockContent = "";
+            language = "";
+          } else {
+            // Start of code block
+            inCodeBlock = true;
+            language = line.slice(3).trim(); // Get the language specified after ```
+          }
+        } else if (inCodeBlock) {
+          codeBlockContent += line + "\n";
+        } else {
+          // Regular text
+          formattedText += this.formatLine(line) + "<br>";
+        }
+      }
+
+      return formattedText;
+    },
+    formatLine(line) {
+      // Basic formatting for non-code text
+      line = line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>"); // Bold
+      line = line.replace(/\*(.*?)\*/g, "<em>$1</em>"); // Italic
+      line = line.replace(/`(.*?)`/g, "<code>$1</code>"); // Inline code
+      return line;
     },
     },
   };
@@ -287,6 +459,102 @@
   
   .sidebar-item.open .collapse-content {
     max-height: 1000px; /* Adjust this value based on your content */
+  }
+  
+.code-container {
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+    width: 100%;
+  }
+  
+  .code-interface {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 10px;
+    flex-direction: column;
+  }
+  
+  .code-interface textarea {
+    flex-grow: 1;
+    padding: 10px;
+    margin-right: 0px;
+    font-size: 14px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    /* resize: none; */
+    width: 100%;
+  }
+  
+  .code-interface .code-theme {
+    margin-right: 10px;
+    border-radius: 20px;
+    padding: 2px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  
+  .code-interface button {
+    padding: 10px 20px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  
+  .code-interface button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .code-response {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    font-size: 14px;
+    overflow: scroll;
+  }
+  
+  .code-response h4 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .code-response div {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  
+  .code-loading {
+    font-size: 14px;
+    color: #999;
+    margin-top: 10px;
+  }
+  
+  .code-error {
+    font-size: 14px;
+    color: #d9534f;
+    margin-top: 10px;
+  }
+  
+  pre {
+    background-color: #282c34;
+    color: #abb2bf;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+  }
+  
+  code {
+    font-family: "Courier New", Courier, monospace;
+  }
+  
+  .hljs {
+    background: none;
   }
 </style>
 
