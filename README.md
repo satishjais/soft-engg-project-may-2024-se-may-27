@@ -93,28 +93,36 @@ To run this application, you will need the following installed on your system:
 ## Screenshots
 
 ### 1. Welcome Page
-![Welcome Page](path/to/image)
+![Welcome Page]![WhatsApp Image 2024-08-18 at 8 57 06 PM](https://github.com/user-attachments/assets/77a6ebec-4a95-4666-8395-2afd7cccbafa)
+)
 
 ### 2. Login Page
-![Login Page](path/to/image)
+![Login Page](![WhatsApp Image 2024-08-18 at 8 57 35 PM](https://github.com/user-attachments/assets/16e16cfe-7584-4352-a1ed-aa3bf9ac8051)
+)
 
 ### 3. Registration Page
-![Registration Page](path/to/image)
+![Registration Page](![WhatsApp Image 2024-08-18 at 8 58 00 PM](https://github.com/user-attachments/assets/e7f0d195-50a8-40f9-8e22-8c4c0633e9f6)
+)
 
 ### 4. Course Dashboard
-![Course Dashboard](path/to/image)
+![Course Dashboard](![WhatsApp Image 2024-08-18 at 8 58 26 PM](https://github.com/user-attachments/assets/8747110f-808b-462d-ad47-bea85730bfff)
+)
 
 ### 5. Admin Support Chat
-![Admin Support Chat](path/to/image)
+![Admin Support Chat](![WhatsApp Image 2024-08-18 at 8 59 25 PM](https://github.com/user-attachments/assets/4343bbab-b93a-4be5-963d-c0c4c3bca43d)
+)
 
 ### 6. Lecture Content Page
-![Lecture Content](path/to/image)
+![Lecture Content](![WhatsApp Image 2024-08-18 at 9 00 14 PM](https://github.com/user-attachments/assets/67793e40-f90a-4c9b-a392-7b799a9d0f4d)
+)
 
 ### 7. Practice Assignment
-![Practice Assignment](path/to/image)
+![Practice Assignment](![WhatsApp Image 2024-08-18 at 9 01 19 PM](https://github.com/user-attachments/assets/2f508398-f394-427a-865f-cf61a586a9fc)
+)
 
 ### 8. Coding Assistant
-![Coding Assistant](path/to/image)
+![Coding Assistant](![WhatsApp Image 2024-08-18 at 9 03 08 PM](https://github.com/user-attachments/assets/88f2476a-00d7-4e56-836a-7137b94dd4ee)
+)
 
 ## Support
 
