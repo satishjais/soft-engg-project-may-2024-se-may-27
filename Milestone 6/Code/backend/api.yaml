@@ -1,0 +1,452 @@
+swagger: '2.0'
+info:
+  version: "1.0.0"
+  title: "WonCourse API"
+  description: "API documentation for the application"
+host: "localhost:2000"
+basePath: "/"
+schemes:
+  - "http"
+paths:
+  /:
+    post:
+      summary: "Home API"
+      description: "Returns a welcome message"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+
+  /register:
+    post:
+      summary: "Register a new user"
+      description: "Registers a new user in the application"
+      parameters:
+        - in: body
+          name: user
+          description: "User object to be registered"
+          schema:
+            type: object
+            required:
+              - username
+              - password
+              - email
+              - mob
+              - name
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+              email:
+                type: string
+              mob:
+                type: string
+              name:
+                type: string
+      responses:
+        201:
+          description: "User created successfully"
+        400:
+          description: "Bad request"
+        500:
+          description: "Internal server error"
+
+  /login:
+    post:
+      summary: "Login user"
+      description: "Logs in a user and returns a JWT token"
+      parameters:
+        - in: body
+          name: credentials
+          description: "User credentials"
+          schema:
+            type: object
+            required:
+              - username
+              - password
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+      responses:
+        200:
+          description: "Login successful"
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+              user_id:
+                type: integer
+              role:
+                type: string
+        400:
+          description: "Invalid credentials"
+        500:
+          description: "Internal server error"
+
+  /user:
+    get:
+      summary: "Get users"
+      description: "Retrieves a list of users (Admin only)"
+      security:
+        - JWT: []
+      responses:
+        200:
+          description: "List of users"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                name:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                mob:
+                  type: string
+                joined_date:
+                  type: string
+                  format: date-time
+                role:
+                  type: string
+        403:
+          description: "Access forbidden"
+        500:
+          description: "Internal server error"
+
+  /user/{user_id}:
+    delete:
+      summary: "Delete user"
+      description: "Deletes a user by ID (Admin only)"
+      security:
+        - JWT: []
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: "User deleted successfully"
+        404:
+          description: "User not found"
+        500:
+          description: "Internal server error"
+
+  /study:
+    get:
+      summary: "Get study content"
+      description: "Retrieves course information (Admin only)"
+      security:
+        - JWT: []
+      responses:
+        200:
+          description: "Course information"
+          schema:
+            type: object
+            properties:
+              course_id:
+                type: integer
+              course_name:
+                type: string
+              course_description:
+                type: string
+              start_date:
+                type: string
+                format: date
+              end_date:
+                type: string
+                format: date
+        404:
+          description: "User not found"
+        500:
+          description: "Internal server error"
+
+    put:
+      summary: "Edit course"
+      description: "Edits an existing course (Admin only)"
+      security:
+        - JWT: []
+      parameters:
+        - in: body
+          name: course
+          description: "Course details"
+          schema:
+            type: object
+            required:
+              - course_name
+              - course_description
+              - start_date
+              - end_date
+            properties:
+              course_name:
+                type: string
+              course_description:
+                type: string
+              start_date:
+                type: string
+                format: date
+              end_date:
+                type: string
+                format: date
+      responses:
+        201:
+          description: "Course edited successfully"
+        500:
+          description: "Internal server error"
+
+  /study/lectures:
+    get:
+      summary: "Get lectures"
+      description: "Retrieves lectures of the course"
+      security:
+        - JWT: []
+      responses:
+        200:
+          description: "List of lectures"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                course_name:
+                  type: string
+                lecture_id:
+                  type: integer
+                lecture_title:
+                  type: string
+                lecture_link:
+                  type: string
+                lecture_date:
+                  type: string
+                  format: date
+                description:
+                  type: string
+                week_number:
+                  type: integer
+                lecture_number:
+                  type: integer
+        500:
+          description: "Internal server error"
+
+    post:
+      summary: "Add lecture"
+      description: "Adds a new lecture to the course"
+      security:
+        - JWT: []
+      parameters:
+        - in: body
+          name: lecture
+          description: "Lecture details"
+          schema:
+            type: object
+            required:
+              - lecture_title
+              - lecture_link
+              - lecture_date
+              - week_number
+              - lecture_number
+            properties:
+              lecture_title:
+                type: string
+              lecture_link:
+                type: string
+              lecture_date:
+                type: string
+                format: date
+              description:
+                type: string
+              week_number:
+                type: integer
+              lecture_number:
+                type: integer
+      responses:
+        201:
+          description: "Lecture created successfully"
+        500:
+          description: "Internal server error"
+
+  /study/lectures/{lecture_id}:
+    delete:
+      summary: "Delete lecture"
+      description: "Deletes a lecture by ID"
+      security:
+        - JWT: []
+      parameters:
+        - in: path
+          name: lecture_id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: "Lecture deleted successfully"
+        404:
+          description: "Lecture not found"
+        500:
+          description: "Internal server error"
+
+  /dashboard/admin:
+    get:
+      summary: "Admin dashboard"
+      description: "Displays admin dashboard information"
+      security:
+        - JWT: []
+      responses:
+        200:
+          description: "Dashboard data"
+          schema:
+            type: object
+            properties:
+              user:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+              total_users:
+                type: integer
+              total_courses:
+                type: integer
+              total_lectures:
+                type: integer
+        403:
+          description: "Access forbidden"
+        500:
+          description: "Internal server error"
+
+  /execute:
+    post:
+      summary: "Execute code"
+      description: "Executes the provided code with test cases"
+      parameters:
+        - in: body
+          name: execution
+          description: "Code and test cases"
+          schema:
+            type: object
+            required:
+              - code
+              - test_cases
+            properties:
+              code:
+                type: string
+              test_cases:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    input:
+                      type: string
+                    expected_output:
+                      type: string
+      responses:
+        200:
+          description: "Test results"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                input:
+                  type: string
+                expected_output:
+                  type: string
+                actual_output:
+                  type: string
+                passed:
+                  type: boolean
+        500:
+          description: "Internal server error"
+
+  /logout:
+    post:
+      summary: "Logout"
+      description: "Logs out the user"
+      responses:
+        200:
+          description: "Successfully logged out"
+        500:
+          description: "Internal server error"
+
+  /videochat:
+    post:
+      summary: "Video Chat"
+      description: "Handles video chat functionality"
+      parameters:
+        - in: body
+          name: chat
+          description: "Message for video chat"
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+      responses:
+        200:
+          description: "Video chat response"
+          schema:
+            type: object
+            properties:
+              response:
+                type: string
+        500:
+          description: "Internal server error"
+
+  /codechat:
+    post:
+      summary: "Code Chat"
+      description: "Handles code chat functionality"
+      parameters:
+        - in: body
+          name: chat
+          description: "Message for code chat"
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+      responses:
+        200:
+          description: "Code chat response"
+
+  /supportchat:
+    post:
+      summary: "Support Chat"
+      description: "Handles support chat functionality"
+      parameters:
+        - in: body
+          name: chat
+          description: "Message for support chat"
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+      responses:
+        200:
+          description: "Support chat response"
+          schema:
+            type: object
+            properties:
+              response:
+                type: string
+        500:
+          description: "Internal server error"
