@@ -124,10 +124,13 @@ To run this application, you will need the following installed on your system:
 ![Coding Assistant](![WhatsApp Image 2024-08-18 at 9 03 08 PM](https://github.com/user-attachments/assets/88f2476a-00d7-4e56-836a-7137b94dd4ee)
 )
 
-## Support
-
-For any issues or support, feel free to contact our team at [support@woncourse.com](mailto:support@woncourse.com).
-
 ## Contributors
 
-- Prem Kumar
+Dev Khatri (21f3001150)
+Satish Jaiswal (21f2000142)
+Prem Kumar (21f1000531)
+Srishti Singh (21f1006972)
+Shrikanth V (21f1002328)
+Shrirang Sapate (21f1002870)
+Pranav R (21f1004199)
+Shristi Tiwari (21f2000589)
